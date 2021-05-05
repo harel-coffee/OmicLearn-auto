@@ -67,6 +67,7 @@ def main_components():
             h1, h2, h3, h4, h5, h6, a, a:visited {color: #f84f57 !important}
             label, stText, p, .caption {color: #035672}
             .css-17eq0hr {background: #035672 !important;}
+            .streamlit-expanderHeader {font-size: 16px !important;}
             .css-17eq0hr label, stText, .caption, .css-j075dz, .css-1t42vg8 {color: #FFF !important}
             .css-17eq0hr a {text-decoration:underline;}
             .tickBarMin, .tickBarMax {color: #f84f57 !important}
