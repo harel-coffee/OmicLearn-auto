@@ -211,32 +211,33 @@ def checkpoint_for_data_upload(state, record_widgets):
                 state['additional_features'] = multiselect("Select additional features for trainig:", state.remainder, default=None)
 
             # Exclude features
-            if st.checkbox("Exclude features"):
-                
-                # File uploading target_column for exclusion
-                exclusion_file_buffer = st.file_uploader("Upload your CSV (comma(,) seperated) file here in which each row corresponds to a feature to be excluded.", type=["csv"])
-                exclusion_df, exc_df_warnings = load_data(exclusion_file_buffer, "Comma (,)")
-                for warning in exc_df_warnings:
-                    st.warning(warning)
+            with st.beta_expander("Exclude features"):
+                if st.checkbox("Exclude features"):
+                    
+                    # File uploading target_column for exclusion
+                    exclusion_file_buffer = st.file_uploader("Upload your CSV (comma(,) seperated) file here in which each row corresponds to a feature to be excluded.", type=["csv"])
+                    exclusion_df, exc_df_warnings = load_data(exclusion_file_buffer, "Comma (,)")
+                    for warning in exc_df_warnings:
+                        st.warning(warning)
 
-                if len(exclusion_df) > 0:
-                    st.text("The following features will be exlcuded:")
-                    st.write(exclusion_df)
-                    exclusion_df_list = list(exclusion_df.iloc[:, 0].unique())
-                    state['exclude_features'] = multiselect(
-                        "Select features to be excluded:",
-                        state.proteins,
-                        default=exclusion_df_list
-                    )
+                    if len(exclusion_df) > 0:
+                        st.text("The following features will be exlcuded:")
+                        st.write(exclusion_df)
+                        exclusion_df_list = list(exclusion_df.iloc[:, 0].unique())
+                        state['exclude_features'] = multiselect(
+                            "Select features to be excluded:",
+                            state.proteins,
+                            default=exclusion_df_list
+                        )
+                    else:
+                        state['exclude_features'] = multiselect(
+                            "Select features to be excluded:",
+                            state.proteins, default=[]
+                        )
                 else:
-                    state['exclude_features'] = multiselect(
-                        "Select features to be excluded:",
-                        state.proteins, default=[]
-                    )
-            else:
-                state['exclude_features'] = []
+                    state['exclude_features'] = []
 
-            if st.checkbox("Manually select features"):
+            with st.beta_expander("Manually select features"):
                 st.markdown("Manually select a subset of features. If only these features should be used, also set the "
                             "`Feature selection` method to `None`. Otherwise feature selection will be applied.")
                 state.proteins = multiselect("Select your features manually:", state.proteins, default=None)
