@@ -60,9 +60,9 @@ def main_components():
                             text-align:center; padding: 8px !important; width: 200px;}
             .download_link:hover {background: #f63366 !important; color: #FFF !important;}
             h1, h2, h3, h4, h5, h6, a, a:visited {color: #f84f57 !important}
-            label, stText, p, .caption {color: #035672 }
+            label, stText, p, .caption {color: #035672}
             .css-17eq0hr {background: #035672 !important;}
-            .css-17eq0hr label, stText, p, .caption, .css-j075dz, .css-1t42vg8 {color: #FFF !important}
+            .css-17eq0hr label, stText, .caption, .css-j075dz, .css-1t42vg8 {color: #FFF !important}
             .css-17eq0hr a {text-decoration:underline;}
             .tickBarMin, .tickBarMax {color: #f84f57 !important}
             .markdown-text-container p {color: #035672 !important}
