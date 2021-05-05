@@ -18,7 +18,7 @@ st.set_page_config(
     page_title = APP_TITLE, 
     page_icon = Image.open('./utils/omic_learn_black.png'), 
     layout = "centered", 
-    initial_sidebar_state = "collapsed")
+    initial_sidebar_state = "auto")
 icon = Image.open('./utils/omic_learn.png')
 
 # Checkpoint for XGBoost
@@ -112,19 +112,20 @@ def main_text_and_data_upload(state):
         * Additional features should be marked with a leading '_'.
     """)
     
-    st.subheader("Dataset")
-    file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
+    with st.beta_expander("Upload or select dataset"):
+        st.subheader("Dataset")
+        file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
 
-    st.markdown("By uploading a file, you agree that you accepting "
-                "[the licence agreement](https://github.com/OmicEra/OmicLearn).")
-    delimiter = st.selectbox("Determine the delimiter in your dataset", ["Excel File", "Comma (,)", "Semicolon (;)"])
-    state['sample_file'] = st.selectbox("Or select sample file here:", ["None", "Alzheimer", "Sample"])
+        st.markdown("By uploading a file, you agree that you accepting "
+                    "[the licence agreement](https://github.com/OmicEra/OmicLearn).")
+        delimiter = st.selectbox("Determine the delimiter in your dataset", ["Excel File", "Comma (,)", "Semicolon (;)"])
+        state['sample_file'] = st.selectbox("Or select sample file here:", ["None", "Alzheimer", "Sample"])
 
-    df, warnings = load_data(file_buffer, delimiter)
+        df, warnings = load_data(file_buffer, delimiter)
 
-    for warning in warnings:
-        st.warning(warning)
-    state['df'] = df
+        for warning in warnings:
+            st.warning(warning)
+        state['df'] = df
 
     return state
 
@@ -147,12 +148,13 @@ def checkpoint_for_data_upload(state, record_widgets):
                 Proteome profiling in cerebrospinal fluid reveals novel biomarkers of Alzheimer's disease.
                 Molecular Systems Biology, 16(6). doi: [10.15252/msb.20199356](http://doi.org/10.15252/msb.20199356) """)
         state['df'] = pd.read_excel('data/' + state.sample_file + '.xlsx')
+        st.markdown("Using the following dataset:")
         st.write(state.df)
     elif 0 < dataframe_length < max_df_length:
-        st.text("Using the following dataset:")
+        st.markdown("Using the following dataset:")
         st.write(state.df)
     elif dataframe_length > max_df_length:
-        st.text("Using the following dataset:")
+        st.markdown("Using the following dataset:")
         st.info(f"The dataframe is too large, displaying the first {max_df_length} rows.")
         st.write(
             state.df.head(max_df_length)
@@ -172,11 +174,9 @@ def checkpoint_for_data_upload(state, record_widgets):
 
         # Dataset -- Subset
         with st.beta_expander("Create subset"):
-            st.subheader("Subset")
             st.markdown("""
                         \nSubset allows you to specify a subset of data based on values within a comma.
                         \nThis way, you can exclude data that should not be used at all.""")
-            st.text('Create a subset based on values in the selected column')
             state['subset_column'] = st.selectbox("Select subset column:", ['None']+state.not_proteins)
 
             if state.subset_column != 'None':
@@ -188,16 +188,16 @@ def checkpoint_for_data_upload(state, record_widgets):
                 state['subset_column'] = 'None'
 
         # Dataset -- Feature selections
-        with st.beta_expander("Classification target and Define classes"):
-            st.subheader("Classification target")
+        with st.beta_expander("Classification target"):
             state['target_column'] = st.selectbox("Select target column:", state.not_proteins)
             st.markdown("Unique elements in `{}` column:".format(state.target_column))
             unique_elements = state.df_sub[state.target_column].value_counts()
             st.write(unique_elements)
             unique_elements_lst = unique_elements.index.tolist()
 
+        with st.beta_expander("Define classes"):
             # Dataset -- Define the classes
-            st.subheader("Define classes".format(state.target_column))
+            st.subheader("Define classes in `{}` column".format(state.target_column))
             state['class_0'] = multiselect("Select Class 0:", unique_elements_lst, default=None)
             state['class_1'] = multiselect("Select Class 1:",
                                         [_ for _ in unique_elements_lst if _ not in state.class_0], default=None)
@@ -206,13 +206,13 @@ def checkpoint_for_data_upload(state, record_widgets):
         if state.class_0 and state.class_1:
 
             with st.beta_expander("Additional features"):
-                st.subheader("Additional features")
-                st.text("Select additional features. All non numerical values will be encoded (e.g. M/F -> 0,1)")
+                st.markdown("Select additional features. All non numerical values will be encoded (e.g. M/F -> 0,1)")
                 state['additional_features'] = multiselect("Select additional features for trainig:", state.remainder, default=None)
 
             # Exclude features
             with st.beta_expander("Exclude features"):
-                if st.checkbox("Exclude features"):
+                st.markdown("Exclude some features from the model training by selecting or uploading a CSV file")
+                if st.checkbox("Yes, I would like to exclude features"):
                     
                     # File uploading target_column for exclusion
                     exclusion_file_buffer = st.file_uploader("Upload your CSV (comma(,) seperated) file here in which each row corresponds to a feature to be excluded.", type=["csv"])
@@ -221,7 +221,7 @@ def checkpoint_for_data_upload(state, record_widgets):
                         st.warning(warning)
 
                     if len(exclusion_df) > 0:
-                        st.text("The following features will be exlcuded:")
+                        st.markdown("The following features will be excluded:")
                         st.write(exclusion_df)
                         exclusion_df_list = list(exclusion_df.iloc[:, 0].unique())
                         state['exclude_features'] = multiselect(
@@ -240,11 +240,12 @@ def checkpoint_for_data_upload(state, record_widgets):
             with st.beta_expander("Manually select features"):
                 st.markdown("Manually select a subset of features. If only these features should be used, also set the "
                             "`Feature selection` method to `None`. Otherwise feature selection will be applied.")
-                state.proteins = multiselect("Select your features manually:", state.proteins, default=None)
+                if st.checkbox("Yes, I would like to manually select the features"):
+                    state.proteins = multiselect("Select your features manually:", state.proteins, default=None)
 
         # Dataset -- Cohort selections
         with st.beta_expander("Cohort comparison"):
-            st.text('Select cohort column to train on one and predict on another:')
+            st.markdown('Select cohort column to train on one and predict on another:')
             not_proteins_excluded_target_option = state.not_proteins
             not_proteins_excluded_target_option.remove(state.target_column)
             state['cohort_column'] = st.selectbox("Select cohort column:", [None] + not_proteins_excluded_target_option)
@@ -433,7 +434,7 @@ def classify_and_plot(state):
 
     # Precision-Recall Curve
     st.subheader('Precision-Recall Curve')
-    st.text("Precision-Recall (PR) Curve might be used for imbalanced datasets.")
+    st.markdown("Precision-Recall (PR) Curve might be used for imbalanced datasets.")
     p = plot_pr_curve_cv(cv_curves['pr_curves_'], cv_results['class_ratio_test'])
     st.plotly_chart(p)
     if p:
@@ -470,7 +471,7 @@ def classify_and_plot(state):
 
         # PR Curve for Cohorts
         st.subheader('Precision-Recall Curve')
-        st.text("Precision-Recall (PR) Curve might be used for imbalanced datasets.")
+        st.markdown("Precision-Recall (PR) Curve might be used for imbalanced datasets.")
         p = plot_pr_curve_cv(cohort_curves['pr_curves_'], cohort_results['class_ratio_test'], cohort_curves['cohort_combos'])
         st.plotly_chart(p)
         if p:
