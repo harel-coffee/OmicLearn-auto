@@ -1,19 +1,24 @@
 """OmicLearn main file."""
 import random
 from datetime import datetime
-
 import numpy as np
 import pandas as pd
 import streamlit as st
 from PIL import Image
-
+import warnings
+warnings.simplefilter("ignore", FutureWarning)
 import utils.session_states as session_states
 from utils.helper import (get_download_link, get_system_report, load_data,
                           make_recording_widget, perform_cross_validation,
                           plot_confusion_matrices, plot_feature_importance,
                           plot_pr_curve_cv, plot_roc_curve_cv,
                           transform_dataset)
-
+APP_TITLE = "OmicLearn — ML platform for biomarkers"
+st.set_page_config(
+    page_title = APP_TITLE, 
+    page_icon = Image.open('./utils/omic_learn_black.png'), 
+    layout = "centered", 
+    initial_sidebar_state = "collapsed")
 icon = Image.open('./utils/omic_learn.png')
 
 # Checkpoint for XGBoost
@@ -99,13 +104,14 @@ def main_components():
 
 # Show main text and data upload section
 def main_text_and_data_upload(state):
-    st.title("OmicLearn — ML platform for biomarkers")
+    st.title(APP_TITLE)
     st.info("""
         * Upload your excel / csv file here. Maximum size is 200 Mb.
         * Each row corresponds to a sample, each column to a feature.
         * 'Features' such as protein IDs, gene names, lipids or miRNA IDs should be uppercase.
         * Additional features should be marked with a leading '_'.
     """)
+    
     st.subheader("Dataset")
     file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
 
@@ -121,7 +127,6 @@ def main_text_and_data_upload(state):
     state['df'] = df
 
     return state
-
 
 # Choosing sample dataset and data parameter selections
 def checkpoint_for_data_upload(state, record_widgets):
@@ -166,10 +171,11 @@ def checkpoint_for_data_upload(state, record_widgets):
         state['not_proteins'] = [_ for _ in state.df.columns.to_list() if _[0] == '_']
 
         # Dataset -- Subset
-        st.markdown("\nSubset allows you to specify a subset of data based on values within a comma. \n"
-                    "This way, you can exclude data that should not be used at all.")
-        if st.checkbox("Create subset"):
+        with st.beta_expander("Create subset"):
             st.subheader("Subset")
+            st.markdown("""
+                        \nSubset allows you to specify a subset of data based on values within a comma.
+                        \nThis way, you can exclude data that should not be used at all.""")
             st.text('Create a subset based on values in the selected column')
             state['subset_column'] = st.selectbox("Select subset column:", ['None']+state.not_proteins)
 
@@ -180,30 +186,29 @@ def checkpoint_for_data_upload(state, record_widgets):
             elif state.subset_column == 'None':
                 state['df_sub'] = state.df.copy()
                 state['subset_column'] = 'None'
-        else:
-            state['df_sub'] = state.df.copy()
-            state['subset_column'] = 'None'
 
         # Dataset -- Feature selections
-        st.subheader("Classification target")
-        state['target_column'] = st.selectbox("Select target column:", state.not_proteins)
-        st.markdown("Unique elements in `{}` column:".format(state.target_column))
-        unique_elements = state.df_sub[state.target_column].value_counts()
-        st.write(unique_elements)
-        unique_elements_lst = unique_elements.index.tolist()
+        with st.beta_expander("Classification target and Define classes"):
+            st.subheader("Classification target")
+            state['target_column'] = st.selectbox("Select target column:", state.not_proteins)
+            st.markdown("Unique elements in `{}` column:".format(state.target_column))
+            unique_elements = state.df_sub[state.target_column].value_counts()
+            st.write(unique_elements)
+            unique_elements_lst = unique_elements.index.tolist()
 
-        # Dataset -- Define the classes
-        st.subheader("Define classes".format(state.target_column))
-        state['class_0'] = multiselect("Select Class 0:", unique_elements_lst, default=None)
-        state['class_1'] = multiselect("Select Class 1:",
-                                       [_ for _ in unique_elements_lst if _ not in state.class_0], default=None)
-        state['remainder'] = [_ for _ in state.not_proteins if _ is not state.target_column]
+            # Dataset -- Define the classes
+            st.subheader("Define classes".format(state.target_column))
+            state['class_0'] = multiselect("Select Class 0:", unique_elements_lst, default=None)
+            state['class_1'] = multiselect("Select Class 1:",
+                                        [_ for _ in unique_elements_lst if _ not in state.class_0], default=None)
+            state['remainder'] = [_ for _ in state.not_proteins if _ is not state.target_column]
 
         if state.class_0 and state.class_1:
 
-            st.subheader("Additional features")
-            st.text("Select additional features. All non numerical values will be encoded (e.g. M/F -> 0,1)")
-            state['additional_features'] = multiselect("Select additional features for trainig:", state.remainder, default=None)
+            with st.beta_expander("Additional features"):
+                st.subheader("Additional features")
+                st.text("Select additional features. All non numerical values will be encoded (e.g. M/F -> 0,1)")
+                state['additional_features'] = multiselect("Select additional features for trainig:", state.remainder, default=None)
 
             # Exclude features
             if st.checkbox("Exclude features"):
@@ -237,17 +242,18 @@ def checkpoint_for_data_upload(state, record_widgets):
                 state.proteins = multiselect("Select your features manually:", state.proteins, default=None)
 
         # Dataset -- Cohort selections
-        state['cohort_checkbox'] = st.checkbox("Cohort comparison")
-        if state.cohort_checkbox:
+        with st.beta_expander("Cohort comparison"):
             st.text('Select cohort column to train on one and predict on another:')
             not_proteins_excluded_target_option = state.not_proteins
             not_proteins_excluded_target_option.remove(state.target_column)
-            state['cohort_column'] = st.selectbox("Select cohort column:", not_proteins_excluded_target_option)
-        else:
-            state['cohort_column'] = None
+            state['cohort_column'] = st.selectbox("Select cohort column:", [None] + not_proteins_excluded_target_option)
+            if state['cohort_column'] == None:
+                state['cohort_checkbox'] = None
+            else:
+                state['cohort_checkbox'] = "Yes"
 
-        if 'exclude_features' not in state:
-            state['exclude_features'] = []
+            if 'exclude_features' not in state:
+                state['exclude_features'] = []
 
         state['proteins'] = [_ for _ in state.proteins if _ not in state.exclude_features]
 
