@@ -113,7 +113,7 @@ def main_text_and_data_upload(state, record_widgets):
         * Additional features should be marked with a leading '_'.
     """)
     
-    with st.beta_expander("Upload or select dataset"):
+    with st.beta_expander("Upload or select dataset", expanded=True):
         file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
         st.markdown("By uploading a file, you agree that you accepting "
                     "[the licence agreement](https://github.com/OmicEra/OmicLearn).")
