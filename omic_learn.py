@@ -126,11 +126,11 @@ def main_text_and_data_upload(state, record_widgets):
             st.warning(warning)
         state['df'] = df
 
-        multiselect = record_widgets.multiselect
+
+        # Sample dataset / uploaded file selection
         dataframe_length = len(state.df)
         max_df_length = 50
 
-        # Sample dataset / uploaded file selection
         if state.sample_file != 'None' and dataframe_length:
             st.warning("Please, either choose a sample file or set it as `None` to work on your file")
             state['df'] = pd.DataFrame()
@@ -141,7 +141,8 @@ def main_text_and_data_upload(state, record_widgets):
                     [GitHub](https://github.com/OmicEra/OmicLearn/blob/master/data/Alzheimer_paper.ipynb):**\n
                     Bader, J., Geyer, P., Müller, J., Strauss, M., Koch, M., & Leypoldt, F. et al. (2020).
                     Proteome profiling in cerebrospinal fluid reveals novel biomarkers of Alzheimer's disease.
-                    Molecular Systems Biology, 16(6). doi: [10.15252/msb.20199356](http://doi.org/10.15252/msb.20199356) """)
+                    Molecular Systems Biology, 16(6). doi: [10.15252/msb.20199356](http://doi.org/10.15252/msb.20199356) 
+                    """)
             state['df'] = pd.read_excel('data/' + state.sample_file + '.xlsx')
             st.markdown("Using the following dataset:")
             st.write(state.df)
@@ -151,9 +152,7 @@ def main_text_and_data_upload(state, record_widgets):
         elif dataframe_length > max_df_length:
             st.markdown("Using the following dataset:")
             st.info(f"The dataframe is too large, displaying the first {max_df_length} rows.")
-            st.write(
-                state.df.head(max_df_length)
-            )
+            st.write(state.df.head(max_df_length))
         else:
             st.error('No dataset uploaded or selected.')
 
@@ -166,8 +165,8 @@ def checkpoint_for_data_upload(state, record_widgets):
 
     if len(state.df) > 0:
         if state.n_missing > 0:
-            st.warning('**WARNING:** Found {} missing values. '
-                       'Use missing value imputation or `xgboost` classifier.'.format(state.n_missing))
+            st.warning(f'**WARNING:** Found {state.n_missing} missing values. '
+                       'Use missing value imputation or `xgboost` classifier.')
         # Distinguish the features from others
         state['proteins'] = [_ for _ in state.df.columns.to_list() if _[0] != '_']
         state['not_proteins'] = [_ for _ in state.df.columns.to_list() if _[0] == '_']
@@ -177,7 +176,7 @@ def checkpoint_for_data_upload(state, record_widgets):
             st.markdown("""
                         \nSubset allows you to specify a subset of data based on values within a comma.
                         \nThis way, you can exclude data that should not be used at all.""")
-            state['subset_column'] = st.selectbox("Select subset column:", ['None']+state.not_proteins)
+            state['subset_column'] = st.selectbox("Select subset column:", ['None'] + state.not_proteins)
 
             if state.subset_column != 'None':
                 subset_options = state.df[state.subset_column].value_counts().index.tolist()
@@ -190,14 +189,14 @@ def checkpoint_for_data_upload(state, record_widgets):
         # Dataset -- Feature selections
         with st.beta_expander("Classification target"):
             state['target_column'] = st.selectbox("Select target column:", state.not_proteins)
-            st.markdown("Unique elements in `{}` column:".format(state.target_column))
+            st.markdown(f"Unique elements in `{state.target_column}` column:")
             unique_elements = state.df_sub[state.target_column].value_counts()
             st.write(unique_elements)
             unique_elements_lst = unique_elements.index.tolist()
 
         with st.beta_expander("Define classes"):
             # Dataset -- Define the classes
-            st.markdown("Define classes in `{}` column".format(state.target_column))
+            st.markdown(f"Define classes in `{state.target_column}` column")
             state['class_0'] = multiselect("Select Class 0:", unique_elements_lst, default=None)
             state['class_1'] = multiselect("Select Class 1:",
                                         [_ for _ in unique_elements_lst if _ not in state.class_0], default=None)
@@ -452,7 +451,7 @@ def classify_and_plot(state):
         get_download_link(p, 'cm.svg')
 
     # Results
-    st.subheader('Run results for `{}`'.format(state.classifier))
+    st.subheader(f'Run results for `{state.classifier}`')
     state['summary'] = pd.DataFrame(pd.DataFrame(cv_results).describe())
     st.write(state.summary)
     get_download_link(state.summary, "run_results.csv")
@@ -650,7 +649,7 @@ def OmicLearn_Main():
     elif (state.df is not None) and (state.class_0 and state.class_1) and (st.button('Run analysis', key='run')):
         state.features = state.proteins + state.additional_features
 
-        st.markdown("Using the following features: Class 0 `{}`, Class 1 `{}`".format(state.class_0, state.class_1))
+        st.markdown(f"Using the following features: Class 0 `{state.class_0}`, Class 1 `{state.class_1}`")
         subset = state.df_sub[state.df_sub[state.target_column].isin(state.class_0) | state.df_sub[state.target_column].isin(state.class_1)].copy()
 
         state.y = subset[state.target_column].isin(state.class_0)  # is class 0 will be 1!
@@ -659,7 +658,7 @@ def OmicLearn_Main():
         if state.cohort_column is not None:
             state['X_cohort'] = subset[state.cohort_column]
 
-        st.markdown('Using classifier `{}`.'.format(state.classifier))
+        st.markdown(f'Using classifier `{state.classifier}`.')
         st.markdown(f'Using a total of  `{len(state.features)}` features.')
 
         if len(state.features) < 10:
@@ -694,7 +693,7 @@ if __name__ == '__main__':
     try:
         OmicLearn_Main()
     except (ValueError, IndexError) as val_ind_error:
-        st.error("There is a problem with values/parameters or dataset due to {}.".format(val_ind_error))
+        st.error(f"There is a problem with values/parameters or dataset due to {val_ind_error}.")
     except TypeError as e:
         # st.warning("TypeError exists in {}".format(e))
         pass
