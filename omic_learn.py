@@ -104,7 +104,7 @@ def main_components():
     return widget_values, record_widgets
 
 # Show main text and data upload section
-def main_text_and_data_upload(state, record_widgets):
+def main_text_and_data_upload(state):
     st.title(APP_TITLE)
     st.info("""
         * Upload your excel / csv file here. Maximum size is 200 Mb.
@@ -113,7 +113,7 @@ def main_text_and_data_upload(state, record_widgets):
         * Additional features should be marked with a leading '_'.
     """)
     
-    with st.beta_expander("Upload or select dataset", expanded=True):
+    with st.beta_expander("Upload or select dataset (*Required)", expanded=True):
         file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
         st.markdown("By uploading a file, you agree that you accepting "
                     "[the licence agreement](https://github.com/OmicEra/OmicLearn).")
@@ -125,7 +125,6 @@ def main_text_and_data_upload(state, record_widgets):
         for warning in warnings:
             st.warning(warning)
         state['df'] = df
-
 
         # Sample dataset / uploaded file selection
         dataframe_length = len(state.df)
@@ -187,14 +186,14 @@ def checkpoint_for_data_upload(state, record_widgets):
                 state['subset_column'] = 'None'
 
         # Dataset -- Feature selections
-        with st.beta_expander("Classification target"):
+        with st.beta_expander("Classification target (*Required)"):
             state['target_column'] = st.selectbox("Select target column:", state.not_proteins)
             st.markdown(f"Unique elements in `{state.target_column}` column:")
             unique_elements = state.df_sub[state.target_column].value_counts()
             st.write(unique_elements)
             unique_elements_lst = unique_elements.index.tolist()
 
-        with st.beta_expander("Define classes"):
+        with st.beta_expander("Define classes (*Required)"):
             # Dataset -- Define the classes
             st.markdown(f"Define classes in `{state.target_column}` column")
             state['class_0'] = multiselect("Select Class 0:", unique_elements_lst, default=None)
@@ -634,7 +633,7 @@ def OmicLearn_Main():
     widget_values, record_widgets = main_components()
 
     # Welcome text and Data uploading
-    state = main_text_and_data_upload(state, record_widgets)
+    state = main_text_and_data_upload(state)
 
     # Checkpoint for whether data uploaded/selected
     state = checkpoint_for_data_upload(state, record_widgets)
