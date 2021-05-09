@@ -44,7 +44,7 @@ def make_recording_widget(f, widget_values):
 
     return wrapper
 
-@st.cache(persist=True)
+@st.cache(persist=True, show_spinner=True)
 def load_data(file_buffer, delimiter):
     """
     Load data to pandas dataframe
