@@ -609,6 +609,13 @@ def plot_roc_curve_cv(roc_curve_results, cohort_combos = None):
                         scaleratio = 1,
                         zeroline=True,
                         ),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
+                        ),
                     )
     return p
 
@@ -675,6 +682,13 @@ def plot_pr_curve_cv(pr_curve_results, class_ratio_test, cohort_combos = None):
                         scaleratio = 1,
                         zeroline=True,
                         ),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
+                        ),
                     )
     return p
 
@@ -728,3 +742,18 @@ def get_download_link(exported_object, name):
 
     else:
         raise NotImplementedError('This output format function is not implemented')
+
+@st.cache(persist=True, allow_output_mutation=True)
+def perform_EDA(data, eda_method):
+    
+    import seaborn as sns
+    sns.set_theme(color_codes=True)
+
+    if eda_method == "t-SNE":
+        return "tSNE result"
+    elif eda_method == "PCA":
+        return "PCA result"
+    elif eda_method == "Hierarchical clustering":
+        return sns.clustermap(data.sample(3))
+    else:
+        return "no EDA"

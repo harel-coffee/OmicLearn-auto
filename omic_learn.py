@@ -12,7 +12,7 @@ from utils.helper import (get_download_link, get_system_report, load_data,
                           make_recording_widget, perform_cross_validation,
                           plot_confusion_matrices, plot_feature_importance,
                           plot_pr_curve_cv, plot_roc_curve_cv,
-                          transform_dataset)
+                          transform_dataset, perform_EDA)
 
 # Set the configs
 APP_TITLE = "OmicLearn — ML platform for biomarkers"
@@ -318,6 +318,10 @@ def generate_sidebar_elements(state, record_widgets):
     else:
         state['n_trees'] = 0
 
+    # Sidebar -- EDA
+    st.sidebar.markdown("## [Explatory data analysis](https://github.com/OmicEra/OmicLearn/wiki/METHODS)")
+    state['eda_method'] = selectbox_("Select an EDA method:", ["Hierarchical clustering", "PCA", "t-SNE"])
+
     # Sidebar -- Classification method selection
     st.sidebar.markdown('## [Classification](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Classification#3-classification)')
     classifiers = ['AdaBoost', 'LogisticRegression', 'KNeighborsClassifier',
@@ -395,111 +399,123 @@ def classify_and_plot(state):
     st.markdown("Running Cross-validation")
     cv_results, cv_curves = perform_cross_validation(state)
 
-    st.header('Cross-validation')
+    # EDA Part
+    st.header("Exploratory data analysis (EDA)")
+    with st.beta_expander("Exploratory data analysis (EDA)"):
+        st.markdown("EDA notes")
+        eda_result = perform_EDA(state.X, state.eda_method)
+        st.pyplot(eda_result)
 
+    st.header('Cross-validation results')
     # Feature importances from the classifier
-    st.subheader('Feature importances from the classifier')
-    if state.cv_method == 'RepeatedStratifiedKFold':
-        st.markdown(f'This is the average feature importance from all {state.cv_splits*state.cv_repeats} cross validation runs.')
-    else:
-        st.markdown(f'This is the average feature importance from all {state.cv_splits} cross validation runs.')
-    if cv_curves['feature_importances_'] is not None:
-
-        # Check whether all feature importance attributes are 0 or not
-        if pd.DataFrame(cv_curves['feature_importances_']).isin([0]).all().all() == False:
-            p, feature_df, feature_df_wo_links = plot_feature_importance(cv_curves['feature_importances_'])
-            st.plotly_chart(p, use_container_width=True)
-            if p:
-                get_download_link(p, 'clf_feature_importance.pdf')
-                get_download_link(p, 'clf_feature_importance.svg')
-
-            # Display `feature_df` with NCBI links
-            st.subheader("Feature importances from classifier table")
-            st.write(feature_df.to_html(escape=False, index=False), unsafe_allow_html=True)
-            get_download_link(feature_df_wo_links, 'clf_feature_importances.csv')
+    with st.beta_expander("Feature importances from the classifier"):
+        st.subheader('Feature importances from the classifier')
+        if state.cv_method == 'RepeatedStratifiedKFold':
+            st.markdown(f'This is the average feature importance from all {state.cv_splits*state.cv_repeats} cross validation runs.')
         else:
-            st.warning("All feature importance attribute as zero (0). Hence, the plot and table are not displayed.")
-    else:
-        st.warning('Feature importance attribute is not implemented for this classifier.')
+            st.markdown(f'This is the average feature importance from all {state.cv_splits} cross validation runs.')
+        if cv_curves['feature_importances_'] is not None:
+
+            # Check whether all feature importance attributes are 0 or not
+            if pd.DataFrame(cv_curves['feature_importances_']).isin([0]).all().all() == False:
+                p, feature_df, feature_df_wo_links = plot_feature_importance(cv_curves['feature_importances_'])
+                st.plotly_chart(p, use_container_width=True)
+                if p:
+                    get_download_link(p, 'clf_feature_importance.pdf')
+                    get_download_link(p, 'clf_feature_importance.svg')
+
+                # Display `feature_df` with NCBI links
+                st.subheader("Feature importances from classifier table")
+                st.write(feature_df.to_html(escape=False, index=False), unsafe_allow_html=True)
+                get_download_link(feature_df_wo_links, 'clf_feature_importances.csv')
+            else:
+                st.warning("All feature importance attribute as zero (0). Hence, the plot and table are not displayed.")
+        else:
+            st.warning('Feature importance attribute is not implemented for this classifier.')
 
     # ROC-AUC
-    st.subheader('Receiver operating characteristic')
-    p = plot_roc_curve_cv(cv_curves['roc_curves_'])
-    st.plotly_chart(p)
-    if p:
-        get_download_link(p, 'roc_curve.pdf')
-        get_download_link(p, 'roc_curve.svg')
-
-    # Precision-Recall Curve
-    st.subheader('Precision-Recall Curve')
-    st.markdown("Precision-Recall (PR) Curve might be used for imbalanced datasets.")
-    p = plot_pr_curve_cv(cv_curves['pr_curves_'], cv_results['class_ratio_test'])
-    st.plotly_chart(p)
-    if p:
-        get_download_link(p, 'pr_curve.pdf')
-        get_download_link(p, 'pr_curve.svg')
-
-    # Confusion Matrix (CM)
-    st.subheader('Confusion matrix')
-    names = ['CV_split {}'.format(_+1) for _ in range(len(cv_curves['y_hats_']))]
-    names.insert(0, 'Sum of all splits')
-    p = plot_confusion_matrices(state.class_0, state.class_1, cv_curves['y_hats_'], names)
-    st.plotly_chart(p)
-    if p:
-        get_download_link(p, 'cm.pdf')
-        get_download_link(p, 'cm.svg')
-
-    # Results
-    st.subheader(f'Run results for `{state.classifier}`')
-    state['summary'] = pd.DataFrame(pd.DataFrame(cv_results).describe())
-    st.write(state.summary)
-    get_download_link(state.summary, "run_results.csv")
-
-    if state.cohort_checkbox:
-        st.header('Cohort comparison')
-        cohort_results, cohort_curves = perform_cross_validation(state, state.cohort_column)
-
-        # ROC-AUC for Cohorts
+    with st.beta_expander("Receiver operating characteristic Curve and Precision-Recall Curve"):
         st.subheader('Receiver operating characteristic')
-        p = plot_roc_curve_cv(cohort_curves['roc_curves_'], cohort_curves['cohort_combos'])
-        st.plotly_chart(p)
+        p = plot_roc_curve_cv(cv_curves['roc_curves_'])
+        st.plotly_chart(p, use_container_width=True)
         if p:
-            get_download_link(p, 'roc_curve_cohort.pdf')
-            get_download_link(p, 'roc_curve_cohort.svg')
+            get_download_link(p, 'roc_curve.pdf')
+            get_download_link(p, 'roc_curve.svg')
 
-        # PR Curve for Cohorts
+        # Precision-Recall Curve
         st.subheader('Precision-Recall Curve')
         st.markdown("Precision-Recall (PR) Curve might be used for imbalanced datasets.")
-        p = plot_pr_curve_cv(cohort_curves['pr_curves_'], cohort_results['class_ratio_test'], cohort_curves['cohort_combos'])
-        st.plotly_chart(p)
+        p = plot_pr_curve_cv(cv_curves['pr_curves_'], cv_results['class_ratio_test'])
+        st.plotly_chart(p, use_container_width=True)
         if p:
-            get_download_link(p, 'pr_curve_cohort.pdf')
-            get_download_link(p, 'pr_curve_cohort.svg')
+            get_download_link(p, 'pr_curve.pdf')
+            get_download_link(p, 'pr_curve.svg')
 
+    # Confusion Matrix (CM)
+    with st.beta_expander("Confusion matrix"):
         st.subheader('Confusion matrix')
-        names = ['Train on {}, Test on {}'.format(_[0], _[1]) for _ in cohort_curves['cohort_combos']]
-        names.insert(0, 'Sum of cohort comparisons')
+        names = ['CV_split {}'.format(_+1) for _ in range(len(cv_curves['y_hats_']))]
+        names.insert(0, 'Sum of all splits')
+        p = plot_confusion_matrices(state.class_0, state.class_1, cv_curves['y_hats_'], names)
+        st.plotly_chart(p, use_container_width=True)
+        if p:
+            get_download_link(p, 'cm.pdf')
+            get_download_link(p, 'cm.svg')
+
+    # Results table
+    with st.beta_expander("Table for run results"):
+        st.subheader(f'Run results for `{state.classifier}`')
+        state['summary'] = pd.DataFrame(pd.DataFrame(cv_results).describe())
+        st.write(state.summary)
+        get_download_link(state.summary, "run_results.csv")
+
+    if state.cohort_checkbox:
+        st.header('Cohort comparison results')
+        cohort_results, cohort_curves = perform_cross_validation(state, state.cohort_column)
+
+        with st.beta_expander("Receiver operating characteristic Curve and Precision-Recall Curve"):
+            # ROC-AUC for Cohorts
+            st.subheader('Receiver operating characteristic')
+            p = plot_roc_curve_cv(cohort_curves['roc_curves_'], cohort_curves['cohort_combos'])
+            st.plotly_chart(p, use_container_width=True)
+            if p:
+                get_download_link(p, 'roc_curve_cohort.pdf')
+                get_download_link(p, 'roc_curve_cohort.svg')
+
+            # PR Curve for Cohorts
+            st.subheader('Precision-Recall Curve')
+            st.markdown("Precision-Recall (PR) Curve might be used for imbalanced datasets.")
+            p = plot_pr_curve_cv(cohort_curves['pr_curves_'], cohort_results['class_ratio_test'], cohort_curves['cohort_combos'])
+            st.plotly_chart(p, use_container_width=True)
+            if p:
+                get_download_link(p, 'pr_curve_cohort.pdf')
+                get_download_link(p, 'pr_curve_cohort.svg')
 
         # Confusion Matrix (CM) for Cohorts
-        p = plot_confusion_matrices(state.class_0, state.class_1, cohort_curves['y_hats_'], names)
-        st.plotly_chart(p)
-        if p:
-            get_download_link(p, 'cm_cohorts.pdf')
-            get_download_link(p, 'cm_cohorts.svg')
+        with st.beta_expander("Confusion matrix"):
+            st.subheader('Confusion matrix')
+            names = ['Train on {}, Test on {}'.format(_[0], _[1]) for _ in cohort_curves['cohort_combos']]
+            names.insert(0, 'Sum of cohort comparisons')
 
-        state['cohort_summary'] = pd.DataFrame(pd.DataFrame(cv_results).describe())
-        st.write(state.cohort_summary)
+            p = plot_confusion_matrices(state.class_0, state.class_1, cohort_curves['y_hats_'], names)
+            st.plotly_chart(p, use_container_width=True)
+            if p:
+                get_download_link(p, 'cm_cohorts.pdf')
+                get_download_link(p, 'cm_cohorts.svg')
+
+        with st.beta_expander("Table for run results"):
+            state['cohort_summary'] = pd.DataFrame(pd.DataFrame(cv_results).describe())
+            st.write(state.cohort_summary)
+            get_download_link(state.cohort_summary, "run_results_cohort.csv")
 
         state['cohort_combos'] = cohort_curves['cohort_combos']
         state['cohort_results'] = cohort_results
-        get_download_link(state.cohort_summary, "run_results_cohort.csv")
 
     return state
 
 # Generate summary text
 def generate_text(state):
 
-    st.write("## Summary")
     text = ""
     # Packages
     packages_plain_text = """
@@ -562,7 +578,9 @@ def generate_text(state):
             text += ', and {:.2f} for PR Curve when training on {} and predicting on {}. '.format(state.cohort_results['pr_auc'][i], cohort_combo[0], cohort_combo[1])
 
     # Print the all text
-    st.info(text)
+    st.header("Summary")
+    with st.beta_expander("Summary"):
+        st.info(text)
 
 # Create new list and dict for sessions
 @st.cache(allow_output_mutation=True)
@@ -683,6 +701,7 @@ def OmicLearn_Main():
 
         # Generate footer
         generate_footer_parts()
+
     else:
         pass
 
