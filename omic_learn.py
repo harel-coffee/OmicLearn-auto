@@ -13,6 +13,8 @@ from utils.helper import (get_download_link, get_system_report, load_data,
                           plot_confusion_matrices, plot_feature_importance,
                           plot_pr_curve_cv, plot_roc_curve_cv,
                           transform_dataset)
+
+# Set the configs
 APP_TITLE = "OmicLearn — ML platform for biomarkers"
 st.set_page_config(
     page_title = APP_TITLE, 
@@ -259,7 +261,6 @@ def checkpoint_for_data_upload(state, record_widgets):
 
     return state
 
-
 # Generate sidebar elements
 def generate_sidebar_elements(state, record_widgets):
     slider_ = record_widgets.slider_
@@ -385,7 +386,6 @@ def generate_sidebar_elements(state, record_widgets):
         state['cv_repeats'] = number_input_('CV Repeats:', min_value=1, max_value=50, value=10)
 
     return state
-
 
 # Display results and plots
 def classify_and_plot(state):
@@ -685,7 +685,6 @@ def OmicLearn_Main():
         generate_footer_parts()
     else:
         pass
-
 
 # Run the OmicLearn
 if __name__ == '__main__':
