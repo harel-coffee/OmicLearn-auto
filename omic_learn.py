@@ -321,6 +321,12 @@ def generate_sidebar_elements(state, record_widgets):
     # Sidebar -- EDA
     st.sidebar.markdown("## [Explatory data analysis](https://github.com/OmicEra/OmicLearn/wiki/METHODS)")
     state['eda_method'] = selectbox_("Select an EDA method:", ["Hierarchical clustering", "PCA", "t-SNE"])
+    
+    if state['eda_method'] == "Hierarchical clustering":
+        state['eda_metric'] = selectbox_("Specify a distance metric:", ["correlation", "braycurtis", "canberra", 
+        "chebyshev", "cityblock", "cosine", "dice", "euclidean", "hamming", 
+        "jaccard", "jensenshannon", "kulsinski", "mahalanobis", "matching", "minkowski", 
+        "rogerstanimoto", "russellrao", "seuclidean", "sokalmichener", "sokalsneath", "sqeuclidean", "yule"])
 
     # Sidebar -- Classification method selection
     st.sidebar.markdown('## [Classification](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Classification#3-classification)')
@@ -403,8 +409,8 @@ def classify_and_plot(state):
     st.header("Exploratory data analysis (EDA)")
     with st.beta_expander("Exploratory data analysis (EDA)"):
         st.markdown("EDA notes")
-        eda_result = perform_EDA(state.X, state.eda_method)
-        st.pyplot(eda_result)
+        p = perform_EDA(state.X, state.y, state.eda_method, state.eda_metric)
+        st.pyplot(p, use_container_width=True)
 
     st.header('Cross-validation results')
     # Feature importances from the classifier

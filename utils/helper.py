@@ -744,7 +744,7 @@ def get_download_link(exported_object, name):
         raise NotImplementedError('This output format function is not implemented')
 
 @st.cache(persist=True, allow_output_mutation=True)
-def perform_EDA(data, eda_method):
+def perform_EDA(data, target_classes, eda_method, eda_metric):
     
     import seaborn as sns
     sns.set_theme(color_codes=True)
@@ -754,6 +754,11 @@ def perform_EDA(data, eda_method):
     elif eda_method == "PCA":
         return "PCA result"
     elif eda_method == "Hierarchical clustering":
-        return sns.clustermap(data.sample(3))
+        # TODO: Replace seaborn graph with plotly
+        color_dict = dict(zip(target_classes.unique(), "rbg"))
+        row_colors = target_classes.map(color_dict)
+        p = sns.clustermap(data, cmap="vlag", 
+                    metric=eda_metric, standard_scale=1, row_colors=row_colors)
+        return p
     else:
         return "no EDA"
