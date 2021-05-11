@@ -12,7 +12,7 @@ from utils.helper import (get_download_link, get_system_report, load_data,
                           make_recording_widget, perform_cross_validation,
                           plot_confusion_matrices, plot_feature_importance,
                           plot_pr_curve_cv, plot_roc_curve_cv,
-                          transform_dataset, perform_EDA)
+                          transform_dataset, perform_EDA, get_alternative_download_link)
 
 # Set the configs
 APP_TITLE = "OmicLearn — ML platform for biomarkers"
@@ -410,7 +410,11 @@ def classify_and_plot(state):
     with st.beta_expander("Exploratory data analysis (EDA)"):
         st.markdown("EDA notes")
         p = perform_EDA(state.X, state.y, state.eda_method, state.eda_metric)
-        st.pyplot(p, use_container_width=True)
+        st.pyplot(p)
+        if p:
+            get_alternative_download_link(p, "eda_result.png")
+            get_alternative_download_link(p, "eda_result.pdf")
+            get_alternative_download_link(p, "eda_result.svg")
 
     st.header('Cross-validation results')
     # Feature importances from the classifier
