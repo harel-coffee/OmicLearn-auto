@@ -328,6 +328,9 @@ def generate_sidebar_elements(state, record_widgets):
         "jaccard", "jensenshannon", "kulsinski", "mahalanobis", "matching", "minkowski", 
         "rogerstanimoto", "russellrao", "seuclidean", "sokalmichener", "sokalsneath", "sqeuclidean", "yule"])
 
+    elif state['eda_method'] == "PCA":
+        state['n_components'] = number_input_('Number of components:', value=2, min_value=1, max_value=4)
+
     # Sidebar -- Classification method selection
     st.sidebar.markdown('## [Classification](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Classification#3-classification)')
     classifiers = ['AdaBoost', 'LogisticRegression', 'KNeighborsClassifier',
@@ -402,19 +405,24 @@ def classify_and_plot(state):
 
     state.bar = st.progress(0)
     # Cross-Validation
-    st.markdown("Running Cross-validation")
+    st.markdown("Performing analysis and Running Cross-validation")
     cv_results, cv_curves = perform_cross_validation(state)
 
     # EDA Part
     st.header("Exploratory data analysis (EDA)")
     with st.beta_expander("Exploratory data analysis (EDA)"):
-        st.markdown("EDA notes")
-        p = perform_EDA(state.X, state.y, state.eda_method, state.eda_metric)
-        st.pyplot(p)
-        if p:
-            get_alternative_download_link(p, "eda_result.png")
-            get_alternative_download_link(p, "eda_result.pdf")
-            get_alternative_download_link(p, "eda_result.svg")
+        st.markdown("\n EDA notes \n")
+        p = perform_EDA(state)
+
+        if state.eda_method == "Hierarchical clustering":
+            st.pyplot(p)
+            get_alternative_download_link(p, "Hierarchical_clustering.png")
+            get_alternative_download_link(p, "Hierarchical_clustering.pdf")
+            get_alternative_download_link(p, "Hierarchical_clustering.svg")
+        else:
+            st.plotly_chart(p, use_container_width=True)
+            get_download_link(p, "pca.pdf")
+            get_download_link(p, "pca.svg")
 
     st.header('Cross-validation results')
     # Feature importances from the classifier

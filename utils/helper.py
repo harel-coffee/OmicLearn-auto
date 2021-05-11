@@ -9,6 +9,7 @@ from itertools import chain
 # Sklearn
 import sklearn
 import sklearn.metrics as metrics
+from sklearn.decomposition import PCA
 from sklearn.impute import SimpleImputer, KNNImputer
 from sklearn import svm, tree, linear_model, neighbors, ensemble
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
@@ -600,7 +601,7 @@ def plot_roc_curve_cv(roc_curve_results, cohort_combos = None):
     p.update_xaxes(showline=True, linewidth=1, linecolor='black')
     p.update_yaxes(showline=True, linewidth=1, linecolor='black')
     p.update_layout(autosize=True,
-                    width=800,
+                    width=700,
                     height=700,
                     xaxis_title='False Positive Rate',
                     yaxis_title='True Positive Rate',
@@ -673,7 +674,7 @@ def plot_pr_curve_cv(pr_curve_results, class_ratio_test, cohort_combos = None):
     p.update_xaxes(showline=True, linewidth=1, linecolor='black')
     p.update_yaxes(showline=True, linewidth=1, range=[0, 1], linecolor='black')
     p.update_layout(autosize=True,
-                    width=800,
+                    width=700,
                     height=700,
                     xaxis_title='Recall',
                     yaxis_title='Precision',
@@ -783,23 +784,121 @@ def get_alternative_download_link(exported_object, name):
     else:
         raise NotImplementedError('This output format function is not implemented')
     
-
-@st.cache(persist=True, allow_output_mutation=True)
-def perform_EDA(data, target_classes, eda_method, eda_metric):
+def perform_EDA(state):
     """
     Perform EDA on the dataset by given method and return result
     """
     
-    if eda_method == "t-SNE":
-        return "tSNE result"
-    elif eda_method == "PCA":
-        return "PCA result"
-    elif eda_method == "Hierarchical clustering":
+    if state.eda_method == "Hierarchical clustering":
         # TODO: Replace seaborn graph with plotly
-        color_dict = dict(zip(target_classes.unique(), "rbg"))
-        row_colors = target_classes.map(color_dict)
-        p = sns.clustermap(data, cmap="vlag", 
-                    metric=eda_metric, standard_scale=1, row_colors=row_colors)
-        return p
-    else:
-        return "no EDA"
+        color_dict = dict(zip(state.y.unique(), "rbg"))
+        row_colors = state.y.map(color_dict)
+        p = sns.clustermap(state.X, cmap="vlag", 
+                    metric=state.eda_metric, standard_scale=1, row_colors=row_colors)
+
+    elif state.eda_method == "PCA":
+        n_components = state.n_components
+        data = state.X
+
+        pca = PCA(n_components=n_components)
+        pca.fit(data)
+        components = pca.transform(data)
+        
+        ### OPTION-1: 2D Visualize Loadings with annotations 
+        # loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
+        # pca_color = state.y.replace({True:state.class_0, False:state.class_1})
+        # p = px.scatter(components, x=0, y=1, color=pca_color)
+        
+        # for i, feature in enumerate(data.columns):
+        #     p.add_shape(
+        #         type='line',
+        #         x0=0, y0=0,
+        #         x1=loadings[i, 0],
+        #         y1=loadings[i, 1]
+        #     )
+        #     p.add_annotation(
+        #         x=loadings[i, 0],
+        #         y=loadings[i, 1],
+        #         ax=0, ay=0,
+        #         xanchor="center",
+        #         yanchor="bottom",
+        #         text=feature,
+        #     )
+        # p.update_xaxes(showline=True, linewidth=1, linecolor='black')
+        # p.update_yaxes(showline=True, linewidth=1, linecolor='black')
+        # p.update_layout(autosize=True,
+        #             width=700,
+        #             height=500,
+        #             xaxis_title='PCA 1',
+        #             yaxis_title='PCA 2',
+        #             xaxis_showgrid=False,
+        #             yaxis_showgrid=False,
+        #             plot_bgcolor= 'rgba(255, 255, 255, 0)',
+        #             legend=dict(
+        #                 orientation="h",
+        #                 yanchor="bottom",
+        #                 y=1.02,
+        #                 xanchor="right",
+        #                 x=1,
+        #                 ),
+        #             )
+        
+        ### OPTION-2: Vis. subset of principal components
+        # total_var = pca.explained_variance_ratio_.sum() * 100
+        # labels = {
+        #     str(i): f"PC {i+1} ({var:.1f}%)"
+        #     for i, var in enumerate(pca.explained_variance_ratio_ * 100)
+        # }
+        # pca_color = state.y.replace({True:state.class_0, False:state.class_1})
+        # p = px.scatter_matrix(
+        #     components,
+        #     color=pca_color,
+        #     dimensions=range(n_components),
+        #     labels=labels,
+        #     title=f'Total Explained Variance: {total_var:.2f}%',
+        # )
+        # p.update_traces(diagonal_visible=False)
+        # p.update_layout(autosize=True,
+        #             width=700,
+        #             height=500,
+        #             xaxis_title='PCA 1',
+        #             yaxis_title='PCA 2',
+        #             xaxis_showgrid=False,
+        #             yaxis_showgrid=False,
+        #             # plot_bgcolor= 'rgba(255, 255, 255, 0)',
+        #             legend=dict(
+        #                 orientation="h",
+        #                 yanchor="bottom",
+        #                 y=1.02,
+        #                 xanchor="right",
+        #                 x=1,
+        #                 ),
+        #             )
+
+        ### OPTION-3: 3D PCA plot
+        total_var = pca.explained_variance_ratio_.sum() * 100
+        pca_color = state.y.replace({True:state.class_0, False:state.class_1})
+        p = px.scatter_3d(
+            components, x=0, y=1, z=2, color=pca_color,
+            title=f'Total Explained Variance: {total_var:.2f}%',
+            labels={'0': 'PC 1', '1': 'PC 2', '2': 'PC 3'}
+        )
+        p.update_layout(autosize=True,
+                    width=700,
+                    height=500,
+                    xaxis_showgrid=False,
+                    yaxis_showgrid=False,
+                    plot_bgcolor= 'rgba(255, 255, 255, 0)',
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
+                        ),
+                    )
+
+    elif state.eda_method == "t-SNE":
+        p = "tSNE result"
+    
+    return p
