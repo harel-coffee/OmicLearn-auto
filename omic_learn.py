@@ -9,7 +9,7 @@ import warnings
 warnings.simplefilter("ignore", FutureWarning)
 import utils.session_states as session_states
 from utils.helper import (get_download_link, get_system_report, load_data,
-                          make_recording_widget, perform_cross_validation,
+                          make_recording_widget, objdict, main_components, perform_cross_validation,
                           plot_confusion_matrices, plot_feature_importance,
                           plot_pr_curve_cv, plot_roc_curve_cv,
                           transform_dataset, perform_EDA, get_alternative_download_link)
@@ -22,6 +22,7 @@ st.set_page_config(
     layout = "centered", 
     initial_sidebar_state = "auto")
 icon = Image.open('./utils/omic_learn.png')
+report = get_system_report()
 
 # Checkpoint for XGBoost
 xgboost_installed = False
@@ -31,79 +32,6 @@ try:
     xgboost_installed = True
 except ModuleNotFoundError:
     st.error('Xgboost not installed. To use xgboost install using `conda install py-xgboost`')
-
-# Define all versions
-report = get_system_report()
-version = report['omic_learn_version']
-
-# Objdict class to conveniently store a state
-class objdict(dict):
-    def __getattr__(self, name):
-        if name in self:
-            return self[name]
-        else:
-            raise AttributeError("No such attribute: " + name)
-
-    def __setattr__(self, name, value):
-        self[name] = value
-
-    def __delattr__(self, name):
-        if name in self:
-            del self[name]
-        else:
-            raise AttributeError("No such attribute: " + name)
-
-# Functions / Element Creations
-def main_components():
-
-    # External CSS
-    main_external_css = """
-        <style>
-            .footer {position: absolute; height: 50px; bottom: -150px; width:100%; padding:10px; text-align:center; }
-            #MainMenu, .reportview-container .main footer {display: none;}
-            .btn-outline-secondary {background: #FFF !important}
-            .download_link {color: #f63366 !important; text-decoration: none !important; z-index: 99999 !important;
-                            cursor:pointer !important; margin: 15px 0px; border: 1px solid #f63366;
-                            text-align:center; padding: 8px !important; width: 200px;}
-            .download_link:hover {background: #f63366 !important; color: #FFF !important;}
-            h1, h2, h3, h4, h5, h6, a, a:visited {color: #f84f57 !important}
-            label, stText, p, .caption {color: #035672}
-            .css-17eq0hr {background: #035672 !important;}
-            .streamlit-expanderHeader {font-size: 16px !important;}
-            .css-17eq0hr label, stText, .caption, .css-j075dz, .css-1t42vg8 {color: #FFF !important}
-            .css-17eq0hr a {text-decoration:underline;}
-            .tickBarMin, .tickBarMax {color: #f84f57 !important}
-            .markdown-text-container p {color: #035672 !important}
-
-            /* Tabs */
-            .tabs { position: relative; min-height: 200px; clear: both; margin: 40px auto 0px auto; background: #efefef; box-shadow: 0 48px 80px -32px rgba(0,0,0,0.3); }
-            .tab {float: left;}
-            .tab label { background: #f84f57; cursor: pointer; font-weight: bold; font-size: 18px; padding: 10px; color: #fff; transition: background 0.1s, color 0.1s; margin-left: -1px; position: relative; left: 1px; top: -29px; z-index: 2; }
-            .tab label:hover {background: #035672;}
-            .tab [type=radio] { display: none; }
-            .content { position: absolute; top: -1px; left: 0; background: #fff; right: 0; bottom: 0; padding: 30px 20px; transition: opacity .1s linear; opacity: 0; }
-            [type=radio]:checked ~ label { background: #035672; color: #fff;}
-            [type=radio]:checked ~ label ~ .content { z-index: 1; opacity: 1; }
-
-            /* Feature Importance Plotly Link Color */
-            .js-plotly-plot .plotly svg a {color: #f84f57 !important}
-        </style>
-    """
-    st.markdown(main_external_css, unsafe_allow_html=True)
-
-    # Fundemental elements
-    widget_values = objdict()
-    record_widgets = objdict()
-
-    # Sidebar widgets
-    record_widgets['button_'] = make_recording_widget(st.sidebar.button, widget_values)
-    record_widgets['slider_'] = make_recording_widget(st.sidebar.slider, widget_values)
-    record_widgets['multiselect_'] = make_recording_widget(st.sidebar.multiselect, widget_values)
-    record_widgets['number_input_'] = make_recording_widget(st.sidebar.number_input, widget_values)
-    record_widgets['selectbox_'] = make_recording_widget(st.sidebar.selectbox, widget_values)
-    record_widgets['multiselect'] = make_recording_widget(st.multiselect, widget_values)
-
-    return widget_values, record_widgets
 
 # Show main text and data upload section
 def main_text_and_data_upload(state):
@@ -268,7 +196,7 @@ def generate_sidebar_elements(state, record_widgets):
     number_input_ = record_widgets.number_input_
 
     # Sidebar -- Image/Title
-    st.sidebar.image(icon, use_column_width=True, caption="OmicLearn " + version)
+    st.sidebar.image(icon, use_column_width=True, caption="OmicLearn " + report['omic_learn_version'])
     st.sidebar.markdown("# [Options](https://github.com/OmicEra/OmicLearn/wiki/METHODS)")
 
     # Sidebar -- Random State
@@ -411,7 +339,7 @@ def classify_and_plot(state):
     # EDA Part
     st.header("Exploratory data analysis (EDA)")
     with st.beta_expander("Exploratory data analysis (EDA)"):
-        st.markdown("\n EDA notes \n")
+        st.markdown("Exploratory data analysis is performed on the whole dataset for providing more insight.")
         p = perform_EDA(state)
 
         if state.eda_method == "Hierarchical clustering":
@@ -651,7 +579,7 @@ def generate_footer_parts():
             <i> OmicLearn {} </i> <br> <img src="https://omicera.com/wp-content/uploads/2020/05/cropped-oe-favicon-32x32.jpg" alt="OmicEra Diagnostics GmbH">
             <a href="https://omicera.com" target="_blank">OmicEra</a>.
         </div>
-        """.format(citations, version)
+        """.format(citations, report['omic_learn_version'])
 
     st.write("## Cite us & Report bugs")
     st.markdown(footer_parts_html, unsafe_allow_html=True)

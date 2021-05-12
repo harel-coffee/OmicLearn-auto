@@ -48,6 +48,81 @@ def make_recording_widget(f, widget_values):
 
     return wrapper
 
+class objdict(dict):
+    """
+    Objdict class to conveniently store a state
+    """
+
+    def __getattr__(self, name):
+        if name in self:
+            return self[name]
+        else:
+            raise AttributeError("No such attribute: " + name)
+
+    def __setattr__(self, name, value):
+        self[name] = value
+
+    def __delattr__(self, name):
+        if name in self:
+            del self[name]
+        else:
+            raise AttributeError("No such attribute: " + name)
+
+
+def main_components():
+    """
+    Expose external CSS and create & return widgets
+    """
+    # External CSS
+    main_external_css = """
+        <style>
+            .footer {position: absolute; height: 50px; bottom: -150px; width:100%; padding:10px; text-align:center; }
+            #MainMenu, .reportview-container .main footer {display: none;}
+            .btn-outline-secondary {background: #FFF !important}
+            .download_link {color: #f63366 !important; text-decoration: none !important; z-index: 99999 !important;
+                            cursor:pointer !important; margin: 15px 0px; border: 1px solid #f63366;
+                            text-align:center; padding: 8px !important; width: 200px;}
+            .download_link:hover {background: #f63366 !important; color: #FFF !important;}
+            h1, h2, h3, h4, h5, h6, a, a:visited {color: #f84f57 !important}
+            label, stText, p, .caption {color: #035672}
+            .css-17eq0hr {background: #035672 !important;}
+            .streamlit-expanderHeader {font-size: 16px !important;}
+            .css-17eq0hr label, stText, .caption, .css-j075dz, .css-1t42vg8 {color: #FFF !important}
+            .css-17eq0hr a {text-decoration:underline;}
+            .tickBarMin, .tickBarMax {color: #f84f57 !important}
+            .markdown-text-container p {color: #035672 !important}
+
+            /* Tabs */
+            .tabs { position: relative; min-height: 200px; clear: both; margin: 40px auto 0px auto; background: #efefef; box-shadow: 0 48px 80px -32px rgba(0,0,0,0.3); }
+            .tab {float: left;}
+            .tab label { background: #f84f57; cursor: pointer; font-weight: bold; font-size: 18px; padding: 10px; color: #fff; transition: background 0.1s, color 0.1s; margin-left: -1px; position: relative; left: 1px; top: -29px; z-index: 2; }
+            .tab label:hover {background: #035672;}
+            .tab [type=radio] { display: none; }
+            .content { position: absolute; top: -1px; left: 0; background: #fff; right: 0; bottom: 0; padding: 30px 20px; transition: opacity .1s linear; opacity: 0; }
+            [type=radio]:checked ~ label { background: #035672; color: #fff;}
+            [type=radio]:checked ~ label ~ .content { z-index: 1; opacity: 1; }
+
+            /* Feature Importance Plotly Link Color */
+            .js-plotly-plot .plotly svg a {color: #f84f57 !important}
+        </style>
+    """
+    st.markdown(main_external_css, unsafe_allow_html=True)
+
+    # Fundemental elements
+    widget_values = objdict()
+    record_widgets = objdict()
+
+    # Sidebar widgets
+    record_widgets['button_'] = make_recording_widget(st.sidebar.button, widget_values)
+    record_widgets['slider_'] = make_recording_widget(st.sidebar.slider, widget_values)
+    record_widgets['multiselect_'] = make_recording_widget(st.sidebar.multiselect, widget_values)
+    record_widgets['number_input_'] = make_recording_widget(st.sidebar.number_input, widget_values)
+    record_widgets['selectbox_'] = make_recording_widget(st.sidebar.selectbox, widget_values)
+    record_widgets['multiselect'] = make_recording_widget(st.multiselect, widget_values)
+
+    return widget_values, record_widgets
+
+
 @st.cache(persist=True, show_spinner=True)
 def load_data(file_buffer, delimiter):
     """
@@ -804,51 +879,57 @@ def perform_EDA(state):
         pca.fit(data)
         components = pca.transform(data)
         
-        ### OPTION-1: 2D Visualize Loadings with annotations 
-        # loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
-        # pca_color = state.y.replace({True:state.class_0, False:state.class_1})
-        # p = px.scatter(components, x=0, y=1, color=pca_color)
+        ### OPTION-1: 2D Visualize scatterplot with annotations 
+        loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
+        pca_color = state.y.replace({True:state.class_0, False:state.class_1})
+        labels = {
+            str(i): f"PC {i+1} ({var:.1f}%)"
+            for i, var in enumerate(pca.explained_variance_ratio_ * 100)
+        }
+        labels["color"] = state.target_column
+        p = px.scatter(components, x=0, y=1, color=pca_color, labels=labels)
         
-        # for i, feature in enumerate(data.columns):
-        #     p.add_shape(
-        #         type='line',
-        #         x0=0, y0=0,
-        #         x1=loadings[i, 0],
-        #         y1=loadings[i, 1]
-        #     )
-        #     p.add_annotation(
-        #         x=loadings[i, 0],
-        #         y=loadings[i, 1],
-        #         ax=0, ay=0,
-        #         xanchor="center",
-        #         yanchor="bottom",
-        #         text=feature,
-        #     )
-        # p.update_xaxes(showline=True, linewidth=1, linecolor='black')
-        # p.update_yaxes(showline=True, linewidth=1, linecolor='black')
-        # p.update_layout(autosize=True,
-        #             width=700,
-        #             height=500,
-        #             xaxis_title='PCA 1',
-        #             yaxis_title='PCA 2',
-        #             xaxis_showgrid=False,
-        #             yaxis_showgrid=False,
-        #             plot_bgcolor= 'rgba(255, 255, 255, 0)',
-        #             legend=dict(
-        #                 orientation="h",
-        #                 yanchor="bottom",
-        #                 y=1.02,
-        #                 xanchor="right",
-        #                 x=1,
-        #                 ),
-        #             )
+        for i, feature in enumerate(data.columns):
+            p.add_shape(
+                type='line',
+                x0=0, y0=0,
+                x1=loadings[i, 0],
+                y1=loadings[i, 1]
+            )
+            p.add_annotation(
+                x=loadings[i, 0],
+                y=loadings[i, 1],
+                ax=0, ay=0,
+                xanchor="center",
+                yanchor="bottom",
+                text=feature,
+            )
+        p.update_xaxes(showline=True, linewidth=1, linecolor='black')
+        p.update_yaxes(showline=True, linewidth=1, linecolor='black')
+        p.update_layout(autosize=True,
+                    width=700,
+                    height=500,
+                    xaxis_title='PCA 1',
+                    yaxis_title='PCA 2',
+                    xaxis_showgrid=False,
+                    yaxis_showgrid=False,
+                    plot_bgcolor= 'rgba(255, 255, 255, 0)',
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
+                        ),
+                    )
         
-        ### OPTION-2: Vis. subset of principal components
+        ### OPTION-2: Vis. subset of principal components via pairwiseScatterPlot
         # total_var = pca.explained_variance_ratio_.sum() * 100
         # labels = {
         #     str(i): f"PC {i+1} ({var:.1f}%)"
         #     for i, var in enumerate(pca.explained_variance_ratio_ * 100)
         # }
+        # labels["color"] = state.target_column
         # pca_color = state.y.replace({True:state.class_0, False:state.class_1})
         # p = px.scatter_matrix(
         #     components,
@@ -876,27 +957,27 @@ def perform_EDA(state):
         #             )
 
         ### OPTION-3: 3D PCA plot
-        total_var = pca.explained_variance_ratio_.sum() * 100
-        pca_color = state.y.replace({True:state.class_0, False:state.class_1})
-        p = px.scatter_3d(
-            components, x=0, y=1, z=2, color=pca_color,
-            title=f'Total Explained Variance: {total_var:.2f}%',
-            labels={'0': 'PC 1', '1': 'PC 2', '2': 'PC 3'}
-        )
-        p.update_layout(autosize=True,
-                    width=700,
-                    height=500,
-                    xaxis_showgrid=False,
-                    yaxis_showgrid=False,
-                    plot_bgcolor= 'rgba(255, 255, 255, 0)',
-                    legend=dict(
-                        orientation="h",
-                        yanchor="bottom",
-                        y=1.02,
-                        xanchor="right",
-                        x=1,
-                        ),
-                    )
+        # total_var = pca.explained_variance_ratio_.sum() * 100
+        # pca_color = state.y.replace({True:state.class_0, False:state.class_1})
+        # p = px.scatter_3d(
+        #     components, x=0, y=1, z=2, color=pca_color,
+        #     title=f'Total Explained Variance: {total_var:.2f}%',
+        #     labels={'0': 'PC 1', '1': 'PC 2', '2': 'PC 3'}
+        # )
+        # p.update_layout(autosize=True,
+        #             width=700,
+        #             height=500,
+        #             xaxis_showgrid=False,
+        #             yaxis_showgrid=False,
+        #             plot_bgcolor= 'rgba(255, 255, 255, 0)',
+        #             legend=dict(
+        #                 orientation="h",
+        #                 yanchor="bottom",
+        #                 y=1.02,
+        #                 xanchor="right",
+        #                 x=1,
+        #                 ),
+        #             )
 
     elif state.eda_method == "t-SNE":
         p = "tSNE result"
