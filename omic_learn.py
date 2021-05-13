@@ -248,7 +248,7 @@ def generate_sidebar_elements(state, record_widgets):
 
     # Sidebar -- EDA
     st.sidebar.markdown("## [Explatory data analysis](https://github.com/OmicEra/OmicLearn/wiki/METHODS)")
-    state['eda_method'] = selectbox_("Select an EDA method:", ["Hierarchical clustering", "PCA", "t-SNE"])
+    state['eda_method'] = selectbox_("Select an EDA method:", ["Hierarchical clustering", "PCA"])
     
     if state['eda_method'] == "Hierarchical clustering":
         state['eda_metric'] = selectbox_("Specify a distance metric:", ["correlation", "braycurtis", "canberra", 
@@ -343,10 +343,9 @@ def classify_and_plot(state):
         p = perform_EDA(state)
 
         if state.eda_method == "Hierarchical clustering":
-            st.pyplot(p)
-            get_alternative_download_link(p, "Hierarchical_clustering.png")
-            get_alternative_download_link(p, "Hierarchical_clustering.pdf")
-            get_alternative_download_link(p, "Hierarchical_clustering.svg")
+            st.plotly_chart(p, use_container_width=True)
+            get_download_link(p, "Hierarchical_clustering.pdf")
+            get_download_link(p, "Hierarchical_clustering.svg")
         else:
             st.plotly_chart(p, use_container_width=True)
             get_download_link(p, "pca.pdf")

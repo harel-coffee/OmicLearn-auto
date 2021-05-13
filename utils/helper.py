@@ -22,8 +22,9 @@ import plotly
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Seaborn Graph
-import seaborn as sns
+# Clustergram via Plotly
+import plotly.figure_factory as ff
+from scipy.spatial.distance import pdist, squareform
 
 # Define common colors
 blue_color = '#035672'
@@ -861,15 +862,86 @@ def get_alternative_download_link(exported_object, name):
     
 def perform_EDA(state):
     """
-    Perform EDA on the dataset by given method and return result
+    Perform EDA on the dataset by given method and return the chart
     """
     
     if state.eda_method == "Hierarchical clustering":
-        # TODO: Replace seaborn graph with plotly
-        color_dict = dict(zip(state.y.unique(), "rbg"))
-        row_colors = state.y.map(color_dict)
-        p = sns.clustermap(state.X, cmap="vlag", 
-                    metric=state.eda_metric, standard_scale=1, row_colors=row_colors)
+
+        data_array = state.X.T
+        # Initialize figure by creating upper dendrogram
+        p = ff.create_dendrogram(data_array, orientation='bottom', labels=data_array.T.columns)
+        for i in range(len(p['data'])):
+            p['data'][i]['yaxis'] = 'y2'
+
+        # Create Side Dendrogram
+        dendro_side = ff.create_dendrogram(data_array, orientation='right')
+        for i in range(len(dendro_side['data'])):
+            dendro_side['data'][i]['xaxis'] = 'x2'
+
+        # Add Side Dendrogram Data to Figure
+        for data in dendro_side['data']:
+            p.add_trace(data)
+
+        # Create Heatmap
+        dendro_leaves = dendro_side['layout']['yaxis']['ticktext']
+        dendro_leaves = list(map(int, dendro_leaves))
+        data_dist = pdist(data_array)
+        heat_data = squareform(data_dist)
+        heat_data = heat_data[dendro_leaves,:]
+        heat_data = heat_data[:,dendro_leaves]
+        heatmap = [
+            go.Heatmap(
+                x = dendro_leaves,
+                y = dendro_leaves,
+                z = heat_data,
+                colorscale = 'viridis'
+            )
+        ]
+
+        heatmap[0]['x'] = p['layout']['xaxis']['tickvals']
+        heatmap[0]['y'] = dendro_side['layout']['yaxis']['tickvals']
+
+        # Add Heatmap Data to Figure
+        for data in heatmap:
+            p.add_trace(data)
+
+        # # Edit Layout
+        p.update_layout({'width':800, 'height':800,
+                                'showlegend':False, 'hovermode': 'closest',
+                                })
+        # Edit xaxis
+        p.update_layout(xaxis={'domain': [.15, 1],
+                                        'mirror': False,
+                                        'showgrid': False,
+                                        'showline': False,
+                                        'zeroline': False,
+                                        'ticks':""})
+        # Edit xaxis2
+        p.update_layout(xaxis2={'domain': [0, .15],
+                                        'mirror': False,
+                                        'showgrid': False,
+                                        'showline': False,
+                                        'zeroline': False,
+                                        'showticklabels': False,
+                                        'ticks':""})
+
+        # Edit yaxis
+        p.update_layout(yaxis={'domain': [0, .85],
+                                        'mirror': False,
+                                        'showgrid': False,
+                                        'showline': False,
+                                        'zeroline': False,
+                                        'showticklabels': False,
+                                        'ticks': ""
+                                })
+        # Edit yaxis2
+        p.update_layout(yaxis2={'domain':[.825, .975],
+                                        'mirror': False,
+                                        'showgrid': False,
+                                        'showline': False,
+                                        'zeroline': False,
+                                        'showticklabels': False,
+                                        'ticks':""})
 
     elif state.eda_method == "PCA":
         n_components = state.n_components
@@ -922,7 +994,4 @@ def perform_EDA(state):
                         ),
                     )
 
-    elif state.eda_method == "t-SNE":
-        p = "tSNE result"
-    
     return p
