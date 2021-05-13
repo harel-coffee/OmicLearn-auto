@@ -878,8 +878,6 @@ def perform_EDA(state):
         pca = PCA(n_components=n_components)
         pca.fit(data)
         components = pca.transform(data)
-        
-        ### OPTION-1: 2D Visualize scatterplot with annotations 
         loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
         pca_color = state.y.replace({True:state.class_0, False:state.class_1})
         labels = {
@@ -889,6 +887,7 @@ def perform_EDA(state):
         labels["color"] = state.target_column
         p = px.scatter(components, x=0, y=1, color=pca_color, labels=labels)
         
+        # Show feature lines
         for i, feature in enumerate(data.columns):
             p.add_shape(
                 type='line',
@@ -922,62 +921,6 @@ def perform_EDA(state):
                         x=1,
                         ),
                     )
-        
-        ### OPTION-2: Vis. subset of principal components via pairwiseScatterPlot
-        # total_var = pca.explained_variance_ratio_.sum() * 100
-        # labels = {
-        #     str(i): f"PC {i+1} ({var:.1f}%)"
-        #     for i, var in enumerate(pca.explained_variance_ratio_ * 100)
-        # }
-        # labels["color"] = state.target_column
-        # pca_color = state.y.replace({True:state.class_0, False:state.class_1})
-        # p = px.scatter_matrix(
-        #     components,
-        #     color=pca_color,
-        #     dimensions=range(n_components),
-        #     labels=labels,
-        #     title=f'Total Explained Variance: {total_var:.2f}%',
-        # )
-        # p.update_traces(diagonal_visible=False)
-        # p.update_layout(autosize=True,
-        #             width=700,
-        #             height=500,
-        #             xaxis_title='PCA 1',
-        #             yaxis_title='PCA 2',
-        #             xaxis_showgrid=False,
-        #             yaxis_showgrid=False,
-        #             # plot_bgcolor= 'rgba(255, 255, 255, 0)',
-        #             legend=dict(
-        #                 orientation="h",
-        #                 yanchor="bottom",
-        #                 y=1.02,
-        #                 xanchor="right",
-        #                 x=1,
-        #                 ),
-        #             )
-
-        ### OPTION-3: 3D PCA plot
-        # total_var = pca.explained_variance_ratio_.sum() * 100
-        # pca_color = state.y.replace({True:state.class_0, False:state.class_1})
-        # p = px.scatter_3d(
-        #     components, x=0, y=1, z=2, color=pca_color,
-        #     title=f'Total Explained Variance: {total_var:.2f}%',
-        #     labels={'0': 'PC 1', '1': 'PC 2', '2': 'PC 3'}
-        # )
-        # p.update_layout(autosize=True,
-        #             width=700,
-        #             height=500,
-        #             xaxis_showgrid=False,
-        #             yaxis_showgrid=False,
-        #             plot_bgcolor= 'rgba(255, 255, 255, 0)',
-        #             legend=dict(
-        #                 orientation="h",
-        #                 yanchor="bottom",
-        #                 y=1.02,
-        #                 xanchor="right",
-        #                 x=1,
-        #                 ),
-        #             )
 
     elif state.eda_method == "t-SNE":
         p = "tSNE result"
