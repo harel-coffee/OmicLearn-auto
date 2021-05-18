@@ -260,7 +260,7 @@ def generate_sidebar_elements(state, record_widgets):
         state['n_components'] = number_input_('Number of components:', value=2, min_value=1, max_value=4)
 
     # Sidebar -- Classification method selection
-    st.sidebar.markdown('## [Classification](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Classification#3-classification)')
+    st.sidebar.markdown('## [Classification](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-4.-Classification#3-classification)')
     classifiers = ['AdaBoost', 'LogisticRegression', 'KNeighborsClassifier',
                    'RandomForest', 'DecisionTree', 'LinearSVC']
     if xgboost_installed:
@@ -318,7 +318,7 @@ def generate_sidebar_elements(state, record_widgets):
     state['classifier_params'] = classifier_params
 
     # Sidebar -- Cross-Validation
-    st.sidebar.markdown('## [Cross-validation](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-4.-Validation#4-1-cross-validation)')
+    st.sidebar.markdown('## [Cross-validation](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-5.-Validation#4-1-cross-validation)')
     state['cv_method'] = selectbox_("Specify CV method:", ["RepeatedStratifiedKFold", "StratifiedKFold", "StratifiedShuffleSplit"])
     state['cv_splits'] = number_input_('CV Splits:', min_value=2, max_value=10, value=5)
 
