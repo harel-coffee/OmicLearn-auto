@@ -824,43 +824,6 @@ def get_download_link(exported_object, name):
     else:
         raise NotImplementedError('This output format function is not implemented')
 
-def get_alternative_download_link(exported_object, name):
-    """
-    Generate download link for Seaborn or Matplotlib charts in SVG and PDF formats
-    """
-    os.makedirs("downloads/", exist_ok=True)
-    extension = name.split(".")[-1]
-
-    if extension == 'svg':
-        exported_object.savefig("downloads/" + name, dpi=200)
-        with open("downloads/" + name) as f:
-            svg = f.read()
-        b64 = base64.b64encode(svg.encode()).decode()
-        href = f'<a class="download_link" href="data:image/svg+xml;base64,%s" download="%s" >Download as *.svg</a>' % (b64, name)
-        st.markdown('')
-        st.markdown(href, unsafe_allow_html=True)
-
-    elif extension == 'png':
-        exported_object.savefig("downloads/" + name, dpi=200)
-        with open("downloads/" + name, "rb") as f:
-            png = f.read()
-        b64 = base64.encodebytes(png).decode()
-        href = f'<a class="download_link" href="data:image/png;base64,%s" download="%s" >Download as *.png</a>' % (b64, name)
-        st.markdown('')
-        st.markdown(href, unsafe_allow_html=True)
-    
-    elif extension == 'pdf':
-        exported_object.savefig("downloads/" + name, dpi=200)
-        with open("downloads/" + name, "rb") as f:
-            pdf = f.read()
-        b64 = base64.encodebytes(pdf).decode()
-        href = f'<a class="download_link" href="data:application/pdf;base64,%s" download="%s" >Download as *.pdf</a>' % (b64, name)
-        st.markdown('')
-        st.markdown(href, unsafe_allow_html=True)
-
-    else:
-        raise NotImplementedError('This output format function is not implemented')
-    
 def perform_EDA(state):
     """
     Perform EDA on the dataset by given method and return the chart

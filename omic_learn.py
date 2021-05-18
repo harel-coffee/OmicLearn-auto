@@ -12,7 +12,7 @@ from utils.helper import (get_download_link, get_system_report, load_data,
                           make_recording_widget, objdict, main_components, perform_cross_validation,
                           plot_confusion_matrices, plot_feature_importance,
                           plot_pr_curve_cv, plot_roc_curve_cv,
-                          transform_dataset, perform_EDA, get_alternative_download_link)
+                          transform_dataset, perform_EDA)
 
 # Set the configs
 APP_TITLE = "OmicLearn — ML platform for biomarkers"
