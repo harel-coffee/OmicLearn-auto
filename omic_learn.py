@@ -248,15 +248,9 @@ def generate_sidebar_elements(state, record_widgets):
 
     # Sidebar -- EDA
     st.sidebar.markdown("## [Exploratory data analysis](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Exploratory-data-analysis)")
-    state['eda_method'] = selectbox_("Select an EDA method:", ["Hierarchical clustering", "PCA"])
+    state['eda_method'] = selectbox_("Select an EDA method:", ["None", "PCA", "Hierarchical clustering"])
     
-    if state['eda_method'] == "Hierarchical clustering":
-        state['eda_metric'] = selectbox_("Specify a distance metric:", ["correlation", "braycurtis", "canberra", 
-        "chebyshev", "cityblock", "cosine", "dice", "euclidean", "hamming", 
-        "jaccard", "jensenshannon", "kulsinski", "mahalanobis", "matching", "minkowski", 
-        "rogerstanimoto", "russellrao", "seuclidean", "sokalmichener", "sokalsneath", "sqeuclidean", "yule"])
-
-    elif state['eda_method'] == "PCA":
+    if state['eda_method'] == "PCA":
         state['n_components'] = number_input_('Number of components:', value=2, min_value=1, max_value=4)
 
     # Sidebar -- Classification method selection
@@ -342,14 +336,16 @@ def classify_and_plot(state):
         st.markdown("Exploratory data analysis is performed on the whole dataset for providing more insight.")
         p = perform_EDA(state)
 
-        if state.eda_method == "Hierarchical clustering":
+        if state.eda_method == "PCA":
+            st.plotly_chart(p, use_container_width=True)
+            get_download_link(p, "pca.pdf")
+            get_download_link(p, "pca.svg")
+        elif state.eda_method == "Hierarchical clustering":
             st.plotly_chart(p, use_container_width=True)
             get_download_link(p, "Hierarchical_clustering.pdf")
             get_download_link(p, "Hierarchical_clustering.svg")
         else:
-            st.plotly_chart(p, use_container_width=True)
-            get_download_link(p, "pca.pdf")
-            get_download_link(p, "pca.svg")
+            pass
 
     st.header('Cross-validation results')
     # Feature importances from the classifier
