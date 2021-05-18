@@ -331,21 +331,22 @@ def classify_and_plot(state):
     cv_results, cv_curves = perform_cross_validation(state)
 
     # EDA Part
-    st.header("Exploratory data analysis (EDA)")
-    with st.beta_expander("Exploratory data analysis (EDA)"):
-        st.markdown("Exploratory data analysis is performed on the whole dataset for providing more insight.")
-        p = perform_EDA(state)
+    if state.eda_method != "None":
+        st.header("Exploratory data analysis (EDA)")
+        with st.beta_expander("Exploratory data analysis (EDA)"):
+            st.markdown("Exploratory data analysis is performed on the whole dataset for providing more insight.")
+            p = perform_EDA(state)
 
-        if state.eda_method == "PCA":
-            st.plotly_chart(p, use_container_width=True)
-            get_download_link(p, "pca.pdf")
-            get_download_link(p, "pca.svg")
-        elif state.eda_method == "Hierarchical clustering":
-            st.plotly_chart(p, use_container_width=True)
-            get_download_link(p, "Hierarchical_clustering.pdf")
-            get_download_link(p, "Hierarchical_clustering.svg")
-        else:
-            pass
+            if state.eda_method == "PCA":
+                st.plotly_chart(p, use_container_width=True)
+                get_download_link(p, "pca.pdf")
+                get_download_link(p, "pca.svg")
+            elif state.eda_method == "Hierarchical clustering":
+                st.plotly_chart(p, use_container_width=True)
+                get_download_link(p, "Hierarchical_clustering.pdf")
+                get_download_link(p, "Hierarchical_clustering.svg")
+            else:
+                pass
 
     st.header('Cross-validation results')
     # Feature importances from the classifier
@@ -520,7 +521,7 @@ def generate_text(state):
 
     # Print the all text
     st.header("Summary")
-    with st.beta_expander("Summary"):
+    with st.beta_expander("Summary text"):
         st.info(text)
 
 # Create new list and dict for sessions

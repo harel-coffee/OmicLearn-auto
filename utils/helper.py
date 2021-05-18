@@ -92,7 +92,7 @@ def main_components():
             .css-17eq0hr a {text-decoration:underline;}
             .tickBarMin, .tickBarMax {color: #f84f57 !important}
             .markdown-text-container p {color: #035672 !important}
-            .css-hi6a2p {max-width: 885px !important}
+            /*.css-hi6a2p {max-width: 885px !important}*/
 
             /* Tabs */
             .tabs { position: relative; min-height: 200px; clear: both; margin: 40px auto 0px auto; background: #efefef; box-shadow: 0 48px 80px -32px rgba(0,0,0,0.3); }
@@ -996,6 +996,6 @@ def perform_EDA(state):
                     )
 
     elif state.eda_method == "None":
-        pass
+        p = None
 
     return p
