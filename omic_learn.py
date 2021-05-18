@@ -247,7 +247,7 @@ def generate_sidebar_elements(state, record_widgets):
         state['n_trees'] = 0
 
     # Sidebar -- EDA
-    st.sidebar.markdown("## [Explatory data analysis](https://github.com/OmicEra/OmicLearn/wiki/METHODS)")
+    st.sidebar.markdown("## [Exploratory data analysis](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Exploratory-data-analysis)")
     state['eda_method'] = selectbox_("Select an EDA method:", ["Hierarchical clustering", "PCA"])
     
     if state['eda_method'] == "Hierarchical clustering":
