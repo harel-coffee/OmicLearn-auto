@@ -37,10 +37,10 @@ except ModuleNotFoundError:
 def main_text_and_data_upload(state):
     st.title(APP_TITLE)
     st.info("""
-        * Upload your excel / csv file here. Maximum size is 200 Mb.
-        * Each row corresponds to a sample, each column to a feature.
-        * 'Features' such as protein IDs, gene names, lipids or miRNA IDs should be uppercase.
-        * Additional features should be marked with a leading '_'.
+        - Upload your excel / csv file here. Maximum size is 200 Mb.
+        - Each row corresponds to a sample, each column to a feature.
+        - 'Features' such as protein IDs, gene names, lipids or miRNA IDs should be uppercase.
+        - Additional features should be marked with a leading '_'.
     """)
     
     with st.beta_expander("Upload or select dataset (*Required)", expanded=True):
@@ -333,7 +333,7 @@ def classify_and_plot(state):
 
     state.bar = st.progress(0)
     # Cross-Validation
-    st.markdown("Performing analysis and Running Cross-validation")
+    st.markdown("Performing analysis and Running cross-validation")
     cv_results, cv_curves = perform_cross_validation(state)
 
     # EDA Part
@@ -610,21 +610,22 @@ def OmicLearn_Main():
 
     elif (state.df is not None) and (state.class_0 and state.class_1) and (st.button('Run analysis', key='run')):
         state.features = state.proteins + state.additional_features
-
-        st.markdown(f"Using the following features: Class 0 `{state.class_0}`, Class 1 `{state.class_1}`")
         subset = state.df_sub[state.df_sub[state.target_column].isin(state.class_0) | state.df_sub[state.target_column].isin(state.class_1)].copy()
-
         state.y = subset[state.target_column].isin(state.class_0)  # is class 0 will be 1!
         state.X = transform_dataset(subset, state.additional_features, state.proteins)
 
         if state.cohort_column is not None:
             state['X_cohort'] = subset[state.cohort_column]
-
-        st.markdown(f'Using classifier `{state.classifier}`.')
-        st.markdown(f'Using a total of  `{len(state.features)}` features.')
-
-        if len(state.features) < 10:
-            st.markdown(f'Features `{state.features}`.')
+        
+        # Show the running info text
+        st.info(f"""
+            **Running info:**
+            - Using the following features: **Class 0 `{state.class_0}`, Class 1 `{state.class_1}`**.
+            - Using classifier **`{state.classifier}`**.
+            - Using a total of  **`{len(state.features)}`** features.
+            - Note that OmicLearn is intended to be an exploratory tool to assess the performance of algorithms, 
+                rather than a classification model for production. 
+        """)
 
         # Plotting and Get the results
         state = classify_and_plot(state)
