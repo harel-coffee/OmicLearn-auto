@@ -117,11 +117,15 @@ def checkpoint_for_data_upload(state, record_widgets):
 
         # Dataset -- Feature selections
         with st.beta_expander("Classification target (*Required)"):
-            state['target_column'] = st.selectbox("Select target column:", state.not_proteins)
-            st.markdown(f"Unique elements in `{state.target_column}` column:")
-            unique_elements = state.df_sub[state.target_column].value_counts()
-            st.write(unique_elements)
-            unique_elements_lst = unique_elements.index.tolist()
+            state['target_column'] = st.selectbox("Select target column:", [""] + state.not_proteins, 
+                                        format_func=lambda x: "Select a classification target" if x == "" else x)
+            if state.target_column == "":
+                unique_elements_lst = []
+            else:
+                st.markdown(f"Unique elements in `{state.target_column}` column:")
+                unique_elements = state.df_sub[state.target_column].value_counts()
+                st.write(unique_elements)
+                unique_elements_lst = unique_elements.index.tolist()
 
         with st.beta_expander("Define classes (*Required)"):
             # Dataset -- Define the classes
@@ -175,7 +179,8 @@ def checkpoint_for_data_upload(state, record_widgets):
         with st.beta_expander("Cohort comparison"):
             st.markdown('Select cohort column to train on one and predict on another:')
             not_proteins_excluded_target_option = state.not_proteins
-            not_proteins_excluded_target_option.remove(state.target_column)
+            if state.target_column != "":
+                not_proteins_excluded_target_option.remove(state.target_column)
             state['cohort_column'] = st.selectbox("Select cohort column:", [None] + not_proteins_excluded_target_option)
             if state['cohort_column'] == None:
                 state['cohort_checkbox'] = None
@@ -602,8 +607,11 @@ def OmicLearn_Main():
     state = generate_sidebar_elements(state, record_widgets)
 
     # Analysis Part
-    if len(state.df) > 0 and not (state.class_0 and state.class_1):
-        st.error('Start with defining classes.')
+    if len(state.df) > 0 and state.target_column == "":
+        st.error('**WARNING:** Start with selecting classification target.')
+
+    elif len(state.df) > 0 and not (state.class_0 and state.class_1):
+        st.error('**WARNING:** Start with defining classes.')
 
     elif (state.df is not None) and (state.class_0 and state.class_1) and (st.button('Run analysis', key='run')):
         state.features = state.proteins + state.additional_features
