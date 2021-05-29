@@ -9,7 +9,7 @@ import warnings
 warnings.simplefilter("ignore", FutureWarning)
 import utils.session_states as session_states
 from utils.helper import (get_download_link, get_system_report, load_data,
-                          make_recording_widget, objdict, main_components, perform_cross_validation,
+                          objdict, main_components, perform_cross_validation,
                           plot_confusion_matrices, plot_feature_importance,
                           plot_pr_curve_cv, plot_roc_curve_cv,
                           transform_dataset, perform_EDA)
@@ -18,7 +18,7 @@ from utils.helper import (get_download_link, get_system_report, load_data,
 APP_TITLE = "OmicLearn — ML platform for biomarkers"
 st.set_page_config(
     page_title = APP_TITLE, 
-    page_icon = Image.open('./utils/omic_learn_black.png'), 
+    page_icon = Image.open('./utils/omic_learn.ico'), 
     layout = "centered", 
     initial_sidebar_state = "auto")
 icon = Image.open('./utils/omic_learn.png')
