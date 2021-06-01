@@ -58,7 +58,7 @@ def main_text_and_data_upload(state):
 
         # Sample dataset / uploaded file selection
         dataframe_length = len(state.df)
-        max_df_length = 50
+        max_df_length = 30
 
         if state.sample_file != 'None' and dataframe_length:
             st.warning("Please, either choose a sample file or set it as `None` to work on your file")
@@ -74,7 +74,7 @@ def main_text_and_data_upload(state):
                     """)
             state['df'] = pd.read_excel('data/' + state.sample_file + '.xlsx')
             st.markdown("Using the following dataset:")
-            st.write(state.df)
+            st.write(state.df.head(max_df_length))
         elif 0 < dataframe_length < max_df_length:
             st.markdown("Using the following dataset:")
             st.write(state.df)
@@ -127,6 +127,7 @@ def checkpoint_for_data_upload(state, record_widgets):
                 st.write(unique_elements)
                 unique_elements_lst = unique_elements.index.tolist()
 
+        # Dataset -- Class definitions
         with st.beta_expander("Define classes (*Required)"):
             # Dataset -- Define the classes
             st.markdown(f"Define classes in `{state.target_column}` column")
@@ -135,7 +136,35 @@ def checkpoint_for_data_upload(state, record_widgets):
                                         [_ for _ in unique_elements_lst if _ not in state.class_0], default=None)
             state['remainder'] = [_ for _ in state.not_proteins if _ is not state.target_column]
 
+        # Once both classes are defined
         if state.class_0 and state.class_1:
+
+            # EDA Part
+            with st.beta_expander("EDA — Exploratory data analysis (^ Recommended)"):
+                st.markdown("""
+                    Exploratory data analysis is performed on the whole dataset for providing more insight.
+                    For more information, please visit 
+                    [the dedicated Wiki page](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Exploratory-data-analysis).
+                    """)
+                state['eda_method'] = st.selectbox("Select an EDA method:", ["None", "PCA", "Hierarchical clustering"])
+
+                # if state['eda_method'] == "PCA":
+                #     state['n_components'] = st.number_input('Number of components:', value=2, 
+                #                                             min_value=1, max_value=len(state.proteins))
+                state['df_sub_y'] = state.df_sub[state.target_column].isin(state.class_0)
+                
+                if (state.eda_method != "None") and (st.button('Perform EDA', key='run')):
+                    p = perform_EDA(state)
+                    if state.eda_method == "PCA":
+                        st.plotly_chart(p, use_container_width=True)
+                        get_download_link(p, "pca.pdf")
+                        get_download_link(p, "pca.svg")
+                    # elif state.eda_method == "Hierarchical clustering":
+                    #     st.plotly_chart(p, use_container_width=True)
+                    #     get_download_link(p, "Hierarchical_clustering.pdf")
+                    #     get_download_link(p, "Hierarchical_clustering.svg")
+                    # else:
+                    #     pass
 
             with st.beta_expander("Additional features"):
                 st.markdown("Select additional features. All non numerical values will be encoded (e.g. M/F -> 0,1)")
@@ -245,13 +274,6 @@ def generate_sidebar_elements(state, record_widgets):
     else:
         state['n_trees'] = 0
 
-    # Sidebar -- EDA
-    st.sidebar.markdown("## [Exploratory data analysis](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Exploratory-data-analysis)")
-    state['eda_method'] = selectbox_("Select an EDA method:", ["None", "PCA", "Hierarchical clustering"])
-    
-    if state['eda_method'] == "PCA":
-        state['n_components'] = number_input_('Number of components:', value=2, min_value=1, max_value=4)
-
     # Sidebar -- Classification method selection
     st.sidebar.markdown('## [Classification](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-4.-Classification#3-classification)')
     classifiers = ['AdaBoost', 'LogisticRegression', 'KNeighborsClassifier',
@@ -264,7 +286,6 @@ def generate_sidebar_elements(state, record_widgets):
         classifiers = ['XGBoost']
 
     state['classifier'] = selectbox_("Specify the classifier:", classifiers)
-
     classifier_params = {}
     classifier_params['random_state'] = state['random_state']
 
@@ -328,24 +349,6 @@ def classify_and_plot(state):
     # Cross-Validation
     st.markdown("Performing analysis and Running cross-validation")
     cv_results, cv_curves = perform_cross_validation(state)
-
-    # EDA Part
-    if state.eda_method != "None":
-        st.header("Exploratory data analysis (EDA)")
-        with st.beta_expander("Exploratory data analysis (EDA)"):
-            st.markdown("Exploratory data analysis is performed on the whole dataset for providing more insight.")
-            p = perform_EDA(state)
-
-            if state.eda_method == "PCA":
-                st.plotly_chart(p, use_container_width=True)
-                get_download_link(p, "pca.pdf")
-                get_download_link(p, "pca.svg")
-            elif state.eda_method == "Hierarchical clustering":
-                st.plotly_chart(p, use_container_width=True)
-                get_download_link(p, "Hierarchical_clustering.pdf")
-                get_download_link(p, "Hierarchical_clustering.svg")
-            else:
-                pass
 
     st.header('Cross-validation results')
     # Feature importances from the classifier

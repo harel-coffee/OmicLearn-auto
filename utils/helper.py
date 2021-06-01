@@ -908,14 +908,13 @@ def perform_EDA(state):
                                         'ticks':""})
 
     elif state.eda_method == "PCA":
-        n_components = state.n_components
-        data = state.X
-
+        n_components = 2 # state.n_components
+        data = state.df_sub[state.proteins].astype('float').fillna(0)
         pca = PCA(n_components=n_components)
         pca.fit(data)
         components = pca.transform(data)
         loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
-        pca_color = state.y.replace({True:state.class_0, False:state.class_1})
+        pca_color = state.df_sub_y.replace({True:state.class_0, False:state.class_1})
         labels = {
             str(i): f"PC {i+1} ({var:.1f}%)"
             for i, var in enumerate(pca.explained_variance_ratio_ * 100)
