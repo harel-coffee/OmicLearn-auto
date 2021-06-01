@@ -103,8 +103,8 @@ def checkpoint_for_data_upload(state, record_widgets):
         # Dataset -- Subset
         with st.beta_expander("Create subset"):
             st.markdown("""
-                        \nSubset allows you to specify a subset of data based on values within a comma.
-                        \nThis way, you can exclude data that should not be used at all.""")
+                        This section allows you to specify a subset of data based on values within a comma.
+                        Hence, you can exclude data that should not be used at all.""")
             state['subset_column'] = st.selectbox("Select subset column:", ['None'] + state.not_proteins)
 
             if state.subset_column != 'None':
