@@ -147,10 +147,6 @@ def checkpoint_for_data_upload(state, record_widgets):
                     [the dedicated Wiki page](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Exploratory-data-analysis).
                     """)
                 state['eda_method'] = st.selectbox("Select an EDA method:", ["None", "PCA", "Hierarchical clustering"])
-
-                # if state['eda_method'] == "PCA":
-                #     state['n_components'] = st.number_input('Number of components:', value=2, 
-                #                                             min_value=1, max_value=len(state.proteins))
                 state['df_sub_y'] = state.df_sub[state.target_column].isin(state.class_0)
                 
                 if (state.eda_method != "None") and (st.button('Perform EDA', key='run')):
@@ -613,7 +609,7 @@ def OmicLearn_Main():
     elif (state.df is not None) and (state.class_0 and state.class_1) and (st.button('Run analysis', key='run')):
         state.features = state.proteins + state.additional_features
         subset = state.df_sub[state.df_sub[state.target_column].isin(state.class_0) | state.df_sub[state.target_column].isin(state.class_1)].copy()
-        state.y = subset[state.target_column].isin(state.class_0)  # is class 0 will be 1!
+        state.y = subset[state.target_column].isin(state.class_0)
         state.X = transform_dataset(subset, state.additional_features, state.proteins)
 
         if state.cohort_column is not None:

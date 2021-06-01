@@ -908,7 +908,7 @@ def perform_EDA(state):
                                         'ticks':""})
 
     elif state.eda_method == "PCA":
-        n_components = 2 # state.n_components
+        n_components = 2
         data = state.df_sub[state.proteins].astype('float').fillna(0)
         pca = PCA(n_components=n_components)
         pca.fit(data)
