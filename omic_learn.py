@@ -160,12 +160,14 @@ def checkpoint_for_data_upload(state, record_widgets):
                 else:
                     state['exclude_features'] = multiselect("Select features to be excluded:",
                                                                 state.proteins, default=[])
-
+            
+            # Manual feature selection
             with st.beta_expander("Manually select features"):
                 st.markdown("Manually select a subset of features. If only these features should be used, also set the "
                             "`Feature selection` method to `None`. Otherwise feature selection will be applied.")
-                if st.checkbox("Yes, I would like to manually select the features"):
-                    state.proteins = multiselect("Select your features manually:", state.proteins, default=None)
+                manual_users_features = multiselect("Select your features manually:", state.proteins, default=None)
+            if manual_users_features:
+                state.proteins = manual_users_features
 
         # Dataset -- Cohort selections
         with st.beta_expander("Cohort comparison"):
