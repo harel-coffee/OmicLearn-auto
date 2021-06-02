@@ -19,12 +19,9 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, La
 
 # Plotly Graphs
 import plotly
+import dash_bio
 import plotly.express as px
 import plotly.graph_objects as go
-
-# Clustergram via Plotly
-import plotly.figure_factory as ff
-from scipy.spatial.distance import pdist, squareform
 
 # Define common colors
 blue_color = '#035672'
@@ -831,81 +828,31 @@ def perform_EDA(state):
     
     if state.eda_method == "Hierarchical clustering":
 
-        data_array = state.X.T
-        # Initialize figure by creating upper dendrogram
-        p = ff.create_dendrogram(data_array, orientation='bottom', labels=data_array.T.columns)
-        for i in range(len(p['data'])):
-            p['data'][i]['yaxis'] = 'y2'
-
-        # Create Side Dendrogram
-        dendro_side = ff.create_dendrogram(data_array, orientation='right')
-        for i in range(len(dendro_side['data'])):
-            dendro_side['data'][i]['xaxis'] = 'x2'
-
-        # Add Side Dendrogram Data to Figure
-        for data in dendro_side['data']:
-            p.add_trace(data)
-
-        # Create Heatmap
-        dendro_leaves = dendro_side['layout']['yaxis']['ticktext']
-        dendro_leaves = list(map(int, dendro_leaves))
-        data_dist = pdist(data_array)
-        heat_data = squareform(data_dist)
-        heat_data = heat_data[dendro_leaves,:]
-        heat_data = heat_data[:,dendro_leaves]
-        heatmap = [
-            go.Heatmap(
-                x = dendro_leaves,
-                y = dendro_leaves,
-                z = heat_data,
-                colorscale = 'viridis'
-            )
-        ]
-
-        heatmap[0]['x'] = p['layout']['xaxis']['tickvals']
-        heatmap[0]['y'] = dendro_side['layout']['yaxis']['tickvals']
-
-        # Add Heatmap Data to Figure
-        for data in heatmap:
-            p.add_trace(data)
-
-        # # Edit Layout
-        p.update_layout({'width':800, 'height':800,
-                                'showlegend':False, 'hovermode': 'closest',
-                                })
-        # Edit xaxis
-        p.update_layout(xaxis={'domain': [.15, 1],
-                                        'mirror': False,
-                                        'showgrid': False,
-                                        'showline': False,
-                                        'zeroline': False,
-                                        'ticks':""})
-        # Edit xaxis2
-        p.update_layout(xaxis2={'domain': [0, .15],
-                                        'mirror': False,
-                                        'showgrid': False,
-                                        'showline': False,
-                                        'zeroline': False,
-                                        'showticklabels': False,
-                                        'ticks':""})
-
-        # Edit yaxis
-        p.update_layout(yaxis={'domain': [0, .85],
-                                        'mirror': False,
-                                        'showgrid': False,
-                                        'showline': False,
-                                        'zeroline': False,
-                                        'showticklabels': False,
-                                        'ticks': ""
-                                })
-        # Edit yaxis2
-        p.update_layout(yaxis2={'domain':[.825, .975],
-                                        'mirror': False,
-                                        'showgrid': False,
-                                        'showline': False,
-                                        'zeroline': False,
-                                        'showticklabels': False,
-                                        'ticks':""})
+        data = state.df_sub
+        data = data[state.proteins].astype('float').fillna(0)
+        columns = [x[:10] for x in data.columns]
+        rows = list(data.index)
+        p = dash_bio.Clustergram(
+            data=data.loc[rows].values,
+            column_labels=columns,
+            row_labels=rows,
+            height=800,
+            width=800,
+            color_threshold=dict(row=9, col=35),
+            color_map=[
+                [0.0, gray_color],
+                [0.5, blue_color],
+                [1.0, red_color],
+            ],
+            line_width=2,
+            cluster="all",
+            col_dist="euclidean",
+            row_dist="euclidean",
+            paper_bg_color='rgba(255,255,255,1)',
+            plot_bg_color='rgba(255,255,255,1)',
+            display_ratio=[0.3, 0.1],
+            standardize="row"
+        )
 
     elif state.eda_method == "PCA":
         n_components = 2
@@ -956,8 +903,5 @@ def perform_EDA(state):
                         x=1,
                         ),
                     )
-
-    elif state.eda_method == "None":
-        p = None
 
     return p

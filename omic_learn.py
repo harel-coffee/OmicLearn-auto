@@ -83,7 +83,7 @@ def main_text_and_data_upload(state):
             st.info(f"The dataframe is too large, displaying the first {max_df_length} rows.")
             st.write(state.df.head(max_df_length))
         else:
-            st.error('No dataset uploaded or selected.')
+            st.error("**WARNING:** No dataset uploaded or selected.")
 
     return state
 
@@ -155,12 +155,10 @@ def checkpoint_for_data_upload(state, record_widgets):
                         st.plotly_chart(p, use_container_width=True)
                         get_download_link(p, "pca.pdf")
                         get_download_link(p, "pca.svg")
-                    # elif state.eda_method == "Hierarchical clustering":
-                    #     st.plotly_chart(p, use_container_width=True)
-                    #     get_download_link(p, "Hierarchical_clustering.pdf")
-                    #     get_download_link(p, "Hierarchical_clustering.svg")
-                    # else:
-                    #     pass
+                    elif state.eda_method == "Hierarchical clustering":
+                        st.plotly_chart(p, use_container_width=True)
+                        get_download_link(p, "Hierarchical_clustering.pdf")
+                        get_download_link(p, "Hierarchical_clustering.svg")
 
             with st.beta_expander("Additional features"):
                 st.markdown("Select additional features. All non numerical values will be encoded (e.g. M/F -> 0,1)")
