@@ -31,7 +31,7 @@ try:
     from xgboost import XGBClassifier
     xgboost_installed = True
 except ModuleNotFoundError:
-    st.error('Xgboost not installed. To use xgboost install using `conda install py-xgboost`')
+    st.warning('**WARNING:** Xgboost not installed. To use xgboost install using `conda install py-xgboost`')
 
 # Show main text and data upload section
 def main_text_and_data_upload(state):
@@ -45,8 +45,10 @@ def main_text_and_data_upload(state):
     
     with st.beta_expander("Upload or select dataset (*Required)", expanded=True):
         file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
-        st.markdown("By uploading a file, you agree that you accepting "
-                    "[the license agreement](https://github.com/OmicEra/OmicLearn/blob/master/LICENSE).")
+        st.markdown("""By uploading a file, you agree that you accepting 
+                    [the license agreement](https://github.com/OmicEra/OmicLearn/blob/master/LICENSE).
+                    \n\n**Note:** We do not save the data you upload via the file uploader; 
+                    it is only stored temporarily in RAM to perform the calculations.""")
         delimiter = st.selectbox("Determine the delimiter in your dataset", ["Excel File", "Comma (,)", "Semicolon (;)"])
         state['sample_file'] = st.selectbox("Or select sample file here:", ["None", "Alzheimer", "Sample"])
 
@@ -61,7 +63,7 @@ def main_text_and_data_upload(state):
         max_df_length = 30
 
         if state.sample_file != 'None' and dataframe_length:
-            st.warning("Please, either choose a sample file or set it as `None` to work on your file")
+            st.warning("**WARNING:** Please, either choose a sample file or set it as `None` to work on your file")
             state['df'] = pd.DataFrame()
         elif state.sample_file != 'None':
             if state.sample_file == "Alzheimer":
@@ -83,7 +85,7 @@ def main_text_and_data_upload(state):
             st.info(f"The dataframe is too large, displaying the first {max_df_length} rows.")
             st.write(state.df.head(max_df_length))
         else:
-            st.error("**WARNING:** No dataset uploaded or selected.")
+            st.warning("**WARNING:** No dataset uploaded or selected.")
 
     return state
 
@@ -94,7 +96,7 @@ def checkpoint_for_data_upload(state, record_widgets):
 
     if len(state.df) > 0:
         if state.n_missing > 0:
-            st.warning(f'**WARNING:** Found {state.n_missing} missing values. '
+            st.info(f'**INFO:** Found {state.n_missing} missing values. '
                        'Use missing value imputation or `xgboost` classifier.')
         # Distinguish the features from others
         state['proteins'] = [_ for _ in state.df.columns.to_list() if _[0] != '_']
@@ -367,9 +369,9 @@ def classify_and_plot(state):
                 st.write(feature_df.to_html(escape=False, index=False), unsafe_allow_html=True)
                 get_download_link(feature_df_wo_links, 'clf_feature_importances.csv')
             else:
-                st.warning("All feature importance attribute as zero (0). Hence, the plot and table are not displayed.")
+                st.info("All feature importance attribute as zero (0). Hence, the plot and table are not displayed.")
         else:
-            st.warning('Feature importance attribute is not implemented for this classifier.')
+            st.info('Feature importance attribute is not implemented for this classifier.')
 
     # ROC-AUC
     with st.beta_expander("Receiver operating characteristic Curve and Precision-Recall Curve"):
@@ -599,10 +601,10 @@ def OmicLearn_Main():
 
     # Analysis Part
     if len(state.df) > 0 and state.target_column == "":
-        st.error('**WARNING:** Start with selecting classification target.')
+        st.warning('**WARNING:** Select classification target from your data.')
 
     elif len(state.df) > 0 and not (state.class_0 and state.class_1):
-        st.error('**WARNING:** Start with defining classes.')
+        st.warning('**WARNING:** Define classes for the classification target.')
 
     elif (state.df is not None) and (state.class_0 and state.class_1) and (st.button('Run analysis', key='run')):
         state.features = state.proteins + state.additional_features

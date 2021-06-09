@@ -446,10 +446,10 @@ def perform_cross_validation(state, cohort_column = None):
         skip = False
         if cohort_column is not None:
             if (len(set(y_train)) == 1):
-                st.warning(f"Only 1 class present in cohort {cohort_combo_names[i][0]}. Skipping training on {cohort_combo_names[i][0]} and predicting on {cohort_combo_names[i][1]}.")
+                st.info(f"Only 1 class present in cohort {cohort_combo_names[i][0]}. Skipping training on {cohort_combo_names[i][0]} and predicting on {cohort_combo_names[i][1]}.")
                 skip = True
             if (len(set(y_test)) == 1):
-                st.warning(f"Only 1 class present in cohort {cohort_combo_names[i][1]}. Skipping training on {cohort_combo_names[i][0]} and predicting on {cohort_combo_names[i][1]}.")
+                st.info(f"Only 1 class present in cohort {cohort_combo_names[i][1]}. Skipping training on {cohort_combo_names[i][0]} and predicting on {cohort_combo_names[i][1]}.")
                 skip = True
             if not skip:
                 cohort_combo_names_.append(cohort_combo_names[i])
