@@ -76,14 +76,14 @@ def main_text_and_data_upload(state):
                     """)
             state['df'] = pd.read_excel('data/' + state.sample_file + '.xlsx')
             st.markdown("Using the following dataset:")
-            st.write(state.df.head(max_df_length))
+            st.dataframe(state.df[state.df.columns[-20:]].head(max_df_length))
         elif 0 < dataframe_length < max_df_length:
             st.markdown("Using the following dataset:")
-            st.write(state.df)
+            st.dataframe(state.df)
         elif dataframe_length > max_df_length:
             st.markdown("Using the following dataset:")
             st.info(f"The dataframe is too large, displaying the first {max_df_length} rows.")
-            st.write(state.df.head(max_df_length))
+            st.dataframe(state.df.head(max_df_length))
         else:
             st.warning("**WARNING:** No dataset uploaded or selected.")
 
