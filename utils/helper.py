@@ -827,11 +827,9 @@ def perform_EDA(state):
     Perform EDA on the dataset by given method and return the chart
     """
     
+    data = state.df_sub[state.proteins].astype('float').fillna(0)
     if state.eda_method == "Hierarchical clustering":
-
-        data = state.df_sub
-        data = data[state.proteins].astype('float').fillna(0)
-        columns = [x[:10] for x in data.columns]
+        columns = [x[:10] for x in data.columns] # to shorten the x-ticks
         rows = list(data.index)
         p = dash_bio.Clustergram(
             data=data.loc[rows].values,
@@ -839,25 +837,20 @@ def perform_EDA(state):
             row_labels=rows,
             height=800,
             width=800,
-            color_threshold=dict(row=9, col=35),
             color_map=[
-                [0.0, gray_color],
-                [0.5, blue_color],
+                [0.0, blue_color],
+                [0.5, gray_color],
                 [1.0, red_color],
             ],
-            line_width=2,
             cluster="all",
-            col_dist="euclidean",
-            row_dist="euclidean",
+            hidden_labels="row",
             paper_bg_color='rgba(255,255,255,1)',
             plot_bg_color='rgba(255,255,255,1)',
-            display_ratio=[0.3, 0.1],
-            standardize="row"
+            standardize="column"
         )
 
     elif state.eda_method == "PCA":
         n_components = 2
-        data = state.df_sub[state.proteins].astype('float').fillna(0)
         pca = PCA(n_components=n_components)
         pca.fit(data)
         components = pca.transform(data)

@@ -152,15 +152,11 @@ def checkpoint_for_data_upload(state, record_widgets):
                 state['df_sub_y'] = state.df_sub[state.target_column].isin(state.class_0)
                 
                 if (state.eda_method != "None") and (st.button('Perform EDA', key='run')):
-                    p = perform_EDA(state)
-                    if state.eda_method == "PCA":
+                    with st.spinner("Wait while performing EDA on the whole dataset"):
+                        p = perform_EDA(state)
                         st.plotly_chart(p, use_container_width=True)
-                        get_download_link(p, "pca.pdf")
-                        get_download_link(p, "pca.svg")
-                    elif state.eda_method == "Hierarchical clustering":
-                        st.plotly_chart(p, use_container_width=True)
-                        get_download_link(p, "Hierarchical_clustering.pdf")
-                        get_download_link(p, "Hierarchical_clustering.svg")
+                        get_download_link(p, f"{state.eda_method}.pdf")
+                        get_download_link(p, f"{state.eda_method}.svg")
 
             with st.beta_expander("Additional features"):
                 st.markdown("Select additional features. All non numerical values will be encoded (e.g. M/F -> 0,1)")
