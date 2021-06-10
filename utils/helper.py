@@ -89,6 +89,7 @@ def main_components():
             .css-17eq0hr a {text-decoration:underline;}
             .tickBarMin, .tickBarMax {color: #f84f57 !important}
             .markdown-text-container p {color: #035672 !important}
+            .css-xq1lnh-EmotionIconBase {fill: #ff3a50 !important}
             /*.css-hi6a2p {max-width: 885px !important}*/
 
             /* Tabs */
