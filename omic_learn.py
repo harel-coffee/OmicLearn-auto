@@ -148,9 +148,11 @@ def checkpoint_for_data_upload(state, record_widgets):
                     For more information, please visit 
                     [the dedicated Wiki page](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Exploratory-data-analysis).
                     """)
-                state['eda_method'] = st.selectbox("Select an EDA method:", ["None", "PCA", "Hierarchical clustering"])
-                state['pca_show_features'] = st.checkbox("Show the feature attributes on the graph", value=False)
                 state['df_sub_y'] = state.df_sub[state.target_column].isin(state.class_0)
+                state['eda_method'] = st.selectbox("Select an EDA method:", ["None", "PCA", "Hierarchical clustering"])
+                
+                if state.eda_method == "PCA":
+                    state['pca_show_features'] = st.checkbox("Show the feature attributes on the graph", value=False)
                 
                 if (state.eda_method != "None") and (st.button('Perform EDA', key='run')):
                     with st.spinner("Wait while performing EDA on the whole dataset"):
