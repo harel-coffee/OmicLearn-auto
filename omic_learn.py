@@ -151,7 +151,7 @@ def checkpoint_for_data_upload(state, record_widgets):
                 state['df_sub_y'] = state.df_sub[state.target_column].isin(state.class_0)
                 state['eda_method'] = st.selectbox("Select an EDA method:", ["None", "PCA", "Hierarchical clustering"])
                 
-                if state.eda_method == "PCA":
+                if (state.eda_method == "PCA") and (len(state.proteins) < 6):
                     state['pca_show_features'] = st.checkbox("Show the feature attributes on the graph", value=False)
                 
                 if (state.eda_method != "None") and (st.button('Perform EDA', key='run')):

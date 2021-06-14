@@ -864,7 +864,7 @@ def perform_EDA(state):
         p = px.scatter(components, x=0, y=1, color=pca_color, labels=labels)
         
         # Show feature lines
-        if state.pca_show_features == True:
+        if hasattr(state, "pca_show_features"):
             for i, feature in enumerate(data.columns):
                 p.add_shape(
                     type='line',
