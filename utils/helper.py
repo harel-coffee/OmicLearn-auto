@@ -864,21 +864,24 @@ def perform_EDA(state):
         p = px.scatter(components, x=0, y=1, color=pca_color, labels=labels)
         
         # Show feature lines
-        for i, feature in enumerate(data.columns):
-            p.add_shape(
-                type='line',
-                x0=0, y0=0,
-                x1=loadings[i, 0],
-                y1=loadings[i, 1]
-            )
-            p.add_annotation(
-                x=loadings[i, 0],
-                y=loadings[i, 1],
-                ax=0, ay=0,
-                xanchor="center",
-                yanchor="bottom",
-                text=feature,
-            )
+        if state.pca_show_features == True:
+            for i, feature in enumerate(data.columns):
+                p.add_shape(
+                    type='line',
+                    x0=0, y0=0,
+                    x1=loadings[i, 0],
+                    y1=loadings[i, 1]
+                )
+                p.add_annotation(
+                    x=loadings[i, 0],
+                    y=loadings[i, 1],
+                    ax=0, ay=0,
+                    xanchor="center",
+                    yanchor="bottom",
+                    text=feature,
+                )
+        
+        # Tune other configs
         p.update_xaxes(showline=True, linewidth=1, linecolor='black')
         p.update_yaxes(showline=True, linewidth=1, linecolor='black')
         p.update_layout(autosize=True,
