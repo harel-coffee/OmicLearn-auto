@@ -53,7 +53,7 @@ Transparent exploration of machine learning for biomarker discovery from proteom
 
   `streamlit run omic_learn.py --browser.gatherUsageStats False`
   
-  > `Running with Docker` option is also available. Please, check the installation instructions on **[the Wiki pages](https://github.com/OmicEra/OmicLearn/wiki/INSTALLATION-%26-RUNNING/)**.
+  > `Running with Docker` option is also available. Please, check the installation instructions on **[the Wiki pages](https://github.com/OmicEra/OmicLearn/wiki/HOW-TO:-Installation-&-Running)**.
   
  - After starting the streamlit server, the OmicLearn page should be automatically opened in your browser (Default link: [`http://localhost:8501`](http://localhost:8501) 
 

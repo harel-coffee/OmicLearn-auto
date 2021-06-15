@@ -1,4 +1,5 @@
 ## **Table of Contents**
+- [**Table of Contents**](#table-of-contents)
 - [Installation instructions](#installation-instructions)
 - [Running](#running)
 - [Running with Docker](#running-with-docker)
@@ -43,9 +44,9 @@
 A docker instance should have at least 4 GB of memory. 
 To build the docker, navigate to the OmicLearn directory: 
 
-* `docker build -f Dockerfile -t omic_learn:latest .`
+* `docker-compose build`
 
 To run the docker container type:
-* `docker run -p 8501:8501 omic_learn:latest`
+* `docker-compose up`
 
 * The OmicLearn page will be accessible via [`http://localhost:8501`](http://localhost:8501)
