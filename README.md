@@ -3,8 +3,8 @@
 
 ![OmicLearn Tests](https://github.com/OmicEra/OmicLearn/workflows/OmicLearn%20Tests/badge.svg)
 ![OmicLearn Python Badges](https://img.shields.io/badge/Tested_with_Python-3.7-blue)
-![OmicLearn Version](https://img.shields.io/badge/Release-v1.0.0-orange)
-![OmicLearn Release](https://img.shields.io/badge/Release%20Date-March%202021-green)
+![OmicLearn Version](https://img.shields.io/badge/Release-v1.1.0-orange)
+![OmicLearn Release](https://img.shields.io/badge/Release%20Date-July%202021-green)
 ![OmicLearn License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 
 ---
