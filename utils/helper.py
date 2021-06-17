@@ -113,12 +113,15 @@ def main_components():
     record_widgets = objdict()
 
     # Sidebar widgets
-    record_widgets['button_'] = make_recording_widget(st.sidebar.button, widget_values)
-    record_widgets['slider_'] = make_recording_widget(st.sidebar.slider, widget_values)
-    record_widgets['multiselect_'] = make_recording_widget(st.sidebar.multiselect, widget_values)
-    record_widgets['number_input_'] = make_recording_widget(st.sidebar.number_input, widget_values)
-    record_widgets['selectbox_'] = make_recording_widget(st.sidebar.selectbox, widget_values)
-    record_widgets['multiselect'] = make_recording_widget(st.multiselect, widget_values)
+    sidebar_elements = {
+        "button_": st.sidebar.button,
+        "slider_": st.sidebar.slider,
+        "number_input_": st.sidebar.number_input,
+        "selectbox_": st.sidebar.selectbox,
+        "multiselect": st.multiselect
+    }
+    for sidebar_key, sidebar_value in sidebar_elements.items():
+        record_widgets[sidebar_key] = make_recording_widget(sidebar_value, widget_values)
 
     return widget_values, record_widgets
 
