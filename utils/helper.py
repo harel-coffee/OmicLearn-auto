@@ -74,7 +74,7 @@ def main_components():
     # External CSS
     main_external_css = """
         <style>
-            hr {margin: 15px 0px 30px 0px !important; background: #ff3a50}
+            hr {margin: 15px 0px !important; background: #ff3a50}
             .footer {position: absolute; height: 50px; bottom: -150px; width:100%; padding:10px; text-align:center; }
             #MainMenu, .reportview-container .main footer {display: none;}
             .btn-outline-secondary {background: #FFF !important}

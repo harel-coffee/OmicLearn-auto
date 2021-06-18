@@ -43,16 +43,16 @@ def main_text_and_data_upload(state):
         - Additional features should be marked with a leading '_'.
     """)
     
-    with st.beta_expander("Upload or select dataset (*Required)", expanded=True):
-        state['sample_file'] = st.selectbox("Select sample file here:", ["None", "Alzheimer", "Sample"])
-        st.markdown("<hr>", unsafe_allow_html=True)
-        file_buffer = st.file_uploader("Or upload your dataset below", type=["csv", "xlsx", "xls"])
+    with st.beta_expander("Upload or select sample dataset (*Required)", expanded=True):
+        file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
         st.markdown("""**Note:** By uploading a file, you agree that you accepting 
                     [the license agreement](https://github.com/OmicEra/OmicLearn/blob/master/LICENSE).
                     We do not save the data you upload via the file uploader; 
                     it is only stored temporarily in RAM to perform the calculations.""")
         delimiter = st.selectbox("Determine the delimiter in your dataset", ["Excel File", "Comma (,)", "Semicolon (;)"])
         df, warnings = load_data(file_buffer, delimiter)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        state['sample_file'] = st.selectbox("Or select sample file here:", ["None", "Alzheimer", "Sample"])
 
         for warning in warnings:
             st.warning(warning)
@@ -119,6 +119,10 @@ def checkpoint_for_data_upload(state, record_widgets):
 
         # Dataset -- Feature selections
         with st.beta_expander("Classification target (*Required)"):
+            st.markdown("""
+                Classification target refers to the variable that the classifier should be able to distinguish. 
+                Then, the 2 classes from the values in this column should be defined.
+            """)
             state['target_column'] = st.selectbox("Select target column:", [""] + state.not_proteins, 
                                         format_func=lambda x: "Select a classification target" if x == "" else x)
             if state.target_column == "":
@@ -131,8 +135,11 @@ def checkpoint_for_data_upload(state, record_widgets):
 
         # Dataset -- Class definitions
         with st.beta_expander("Define classes (*Required)"):
-            # Dataset -- Define the classes
-            st.markdown(f"Define classes in `{state.target_column}` column")
+            st.markdown(f"""
+                As for a binary classification task, two options in `{state.target_column}` column 
+                should be defined for the outcome of the classifier. 
+                By assigning multiple values to a class, multiple combinations of classifications can be tested.
+            """)
             state['class_0'] = multiselect("Select Class 0:", unique_elements_lst, default=None)
             state['class_1'] = multiselect("Select Class 1:",
                                         [_ for _ in unique_elements_lst if _ not in state.class_0], default=None)
