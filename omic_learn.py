@@ -44,14 +44,14 @@ def main_text_and_data_upload(state):
     """)
     
     with st.beta_expander("Upload or select dataset (*Required)", expanded=True):
-        file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
-        st.markdown("""By uploading a file, you agree that you accepting 
+        state['sample_file'] = st.selectbox("Select sample file here:", ["None", "Alzheimer", "Sample"])
+        st.markdown("<hr>", unsafe_allow_html=True)
+        file_buffer = st.file_uploader("Or upload your dataset below", type=["csv", "xlsx", "xls"])
+        st.markdown("""**Note:** By uploading a file, you agree that you accepting 
                     [the license agreement](https://github.com/OmicEra/OmicLearn/blob/master/LICENSE).
-                    \n\n**Note:** We do not save the data you upload via the file uploader; 
+                    We do not save the data you upload via the file uploader; 
                     it is only stored temporarily in RAM to perform the calculations.""")
         delimiter = st.selectbox("Determine the delimiter in your dataset", ["Excel File", "Comma (,)", "Semicolon (;)"])
-        state['sample_file'] = st.selectbox("Or select sample file here:", ["None", "Alzheimer", "Sample"])
-
         df, warnings = load_data(file_buffer, delimiter)
 
         for warning in warnings:
