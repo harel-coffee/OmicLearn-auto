@@ -399,7 +399,6 @@ def classify_and_plot(state):
 
     # Confusion Matrix (CM)
     with st.beta_expander("Confusion matrix"):
-        st.subheader('Confusion matrix')
         names = ['CV_split {}'.format(_+1) for _ in range(len(cv_curves['y_hats_']))]
         names.insert(0, 'Sum of all splits')
         p = plot_confusion_matrices(state.class_0, state.class_1, cv_curves['y_hats_'], names)
@@ -413,6 +412,10 @@ def classify_and_plot(state):
         st.subheader(f'Run results for `{state.classifier}`')
         state['summary'] = pd.DataFrame(pd.DataFrame(cv_results).describe())
         st.write(state.summary)
+        st.info("""
+            **Info:** `Mean precision` and `Mean recall` values provided in the table above are calculated
+            from each individual splits shown in the confusion matrix, not `"Sum of all splits"` matrix.
+            """)
         get_download_link(state.summary, "run_results.csv")
 
     if state.cohort_checkbox:
