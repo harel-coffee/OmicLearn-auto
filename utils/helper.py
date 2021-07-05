@@ -22,11 +22,13 @@ import plotly
 import dash_bio
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
+from scipy.spatial.distance import pdist, squareform
 
 # Define common colors
 blue_color = '#035672'
 red_color = '#f84f57'
-gray_color ='#f3f4f7'
+gray_color ='#ccc'
 
 # Define base metrics to be used
 scores = ['accuracy', 'roc_auc', 'precision', 'recall', 'f1', 'balanced_accuracy']
@@ -826,33 +828,123 @@ def get_download_link(exported_object, name):
     else:
         raise NotImplementedError('This output format function is not implemented')
 
+def generate_dendrogram( matrix, labels, show_distances: bool = False, colorbar_title: str = "", ):
+    """Generate Dendrogram."""
+
+    # Initialize figure by creating upper dendrogram
+    fig = ff.create_dendrogram(
+        matrix,
+        orientation="bottom",
+        labels=labels,
+        colorscale=[gray_color] * 8,
+    )
+    for i in range(len(fig["data"])):
+        fig["data"][i]["yaxis"] = "y2"
+
+    # Create side dendrogram
+    dendro_side = ff.create_dendrogram(
+        matrix, orientation="right", colorscale=[gray_color] * 8
+    )
+    for i in range(len(dendro_side["data"])):
+        dendro_side["data"][i]["xaxis"] = "x2"
+
+    # Add Side Dendrogram Data to Figure
+    for data in dendro_side["data"]:
+        fig.add_trace(data)
+
+    # define dendro leaves
+    dendro_leaves = dendro_side["layout"]["yaxis"]["ticktext"]
+    dendro_leaves = list(map(int, dendro_leaves))
+
+    # get heatmap data (z)
+    if show_distances:
+        # calculate distances
+        heat_data = squareform(pdist(matrix))
+    else:
+        heat_data = matrix.values
+
+    # arrange the heatmap data according to the dendrogram clustering
+    heat_data = heat_data[dendro_leaves, :]
+    heat_data = heat_data[:, dendro_leaves]
+
+    heatmap = [
+        go.Heatmap(
+            x=dendro_leaves,
+            y=dendro_leaves,
+            z=heat_data,
+            colorscale=[
+                [0.0, blue_color],
+                [0.5, "#ffffff"],
+                [1.0, red_color],
+            ],
+            colorbar={"title": colorbar_title},
+            hovertemplate=(
+                "<b>Protein x:</b> %{x}<br><b>Protein y:</b> %{y}"
+                "<extra>r = %{z:.2f}</extra>"
+            ),
+        )
+    ]
+
+    heatmap[0]["x"] = fig["layout"]["xaxis"]["tickvals"]
+    heatmap[0]["y"] = dendro_side["layout"]["yaxis"]["tickvals"]
+    for data in heatmap:
+        fig.add_trace(data)
+
+    # modify layout
+    fig.update_layout(
+        {
+            "width": 800,
+            "height": 800,
+            "showlegend": False,
+            "hovermode": "closest",
+        }
+    )
+
+    # add labels to yaxis (needed for the hover)
+    fig["layout"]["yaxis"]["ticktext"] = fig["layout"]["xaxis"]["ticktext"]
+    fig["layout"]["yaxis"]["tickvals"] = fig["layout"]["xaxis"]["tickvals"]
+
+    # modify axes
+    params: dict = {
+        "mirror": False,
+        "showgrid": False,
+        "showline": False,
+        "zeroline": False,
+        "showticklabels": False,
+        "ticks": "",
+    }
+    fig.update_layout(
+        xaxis={"domain": [0.15, 1], **params},
+        xaxis2={"domain": [0, 0.15], **params},
+        yaxis={"domain": [0, 0.85], **params},
+        yaxis2={"domain": [0.825, 0.975], **params},
+    )
+
+    return fig
+
 def perform_EDA(state):
     """
     Perform EDA on the dataset by given method and return the chart
     """
     
-    data = state.df_sub[state.proteins].astype('float').fillna(0)
+    data = state.df_sub[state.proteins].astype('float').fillna(0.0)
     if state.eda_method == "Hierarchical clustering":
-        columns = [x[:10] for x in data.columns] # to shorten the x-ticks
-        rows = list(data.index)
-        p = dash_bio.Clustergram(
-            data=data.loc[rows].values,
-            column_labels=columns,
-            row_labels=rows,
-            height=800,
-            width=800,
-            color_map=[
-                [0.0, blue_color],
-                [0.5, gray_color],
-                [1.0, red_color],
-            ],
-            cluster="all",
-            hidden_labels="row",
-            paper_bg_color='rgba(255,255,255,1)',
-            plot_bg_color='rgba(255,255,255,1)',
-            standardize="column"
+        corr = data.T.corr(method="pearson").fillna(0.0)
+        labels = corr.columns
+        p = generate_dendrogram(
+            matrix=corr,
+            labels=labels,
+            colorbar_title="Pearson correlation coeff.",
         )
 
+        p.update_layout(autosize=True,
+                    width=800,
+                    height=800,
+                    xaxis_showgrid=False,
+                    yaxis_showgrid=False,
+                    plot_bgcolor= 'rgba(255, 255, 255, 0)',
+                    )
+        
     elif state.eda_method == "PCA":
         n_components = 2
         pca = PCA(n_components=n_components)
@@ -865,7 +957,7 @@ def perform_EDA(state):
             for i, var in enumerate(pca.explained_variance_ratio_ * 100)
         }
         labels["color"] = state.target_column
-        p = px.scatter(components, x=0, y=1, color=pca_color, labels=labels)
+        p = px.scatter(components, x=0, y=1, color=pca_color, labels=labels, hover_name=data.index)
         
         # Show feature lines
         if hasattr(state, "pca_show_features") and (state.pca_show_features==True):
