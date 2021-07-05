@@ -292,7 +292,7 @@ def plot_feature_importance(feature_importance):
         feature_df = feature_df.iloc[:display_limit] # Show at most `display_limit` entries
         feature_df = feature_df.append(remainder)
 
-    feature_df["Feature_importance"] = feature_df["Feature_importance"].map('{:.3f}'.format)
+    feature_df["Feature_importance"] = feature_df["Feature_importance"].map('{:.3f}'.format).astype(np.float32)
     feature_df["Std"] = feature_df["Std"].map('{:.5f}'.format)
     feature_df_wo_links = feature_df.copy()
     feature_df["Name"] = feature_df["Name"].apply(lambda x: '<a href="https://www.ncbi.nlm.nih.gov/search/all/?term={}" title="Search on NCBI" target="_blank">{}</a>'.format(x, x)
