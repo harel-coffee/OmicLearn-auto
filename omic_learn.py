@@ -413,8 +413,9 @@ def classify_and_plot(state):
         state['summary'] = pd.DataFrame(pd.DataFrame(cv_results).describe())
         st.write(state.summary)
         st.info("""
-            **Info:** `Mean precision` and `Mean recall` values provided in the table above are calculated
-            from each individual splits shown in the confusion matrix, not `"Sum of all splits"` matrix.
+            **Info:** `Mean precision` and `Mean recall` values provided in the table above 
+            are calculated as the mean of all individual splits shown in the confusion matrix,
+            not the "Sum of all splits" matrix.
             """)
         get_download_link(state.summary, "run_results.csv")
 
