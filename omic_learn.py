@@ -120,8 +120,8 @@ def checkpoint_for_data_upload(state, record_widgets):
         # Dataset -- Feature selections
         with st.beta_expander("Classification target (*Required)"):
             st.markdown("""
-                Classification target refers to the variable that the classifier should be able to distinguish. 
-                Then, the 2 classes from the values in this column should be defined.
+                Classification target refers to the column that contains the variables that are used two distinguish the two classes. 
+                In the next section, the unique values of this column can be used to define the two classes.
             """)
             state['target_column'] = st.selectbox("Select target column:", [""] + state.not_proteins, 
                                         format_func=lambda x: "Select a classification target" if x == "" else x)
@@ -136,9 +136,9 @@ def checkpoint_for_data_upload(state, record_widgets):
         # Dataset -- Class definitions
         with st.beta_expander("Define classes (*Required)"):
             st.markdown(f"""
-                As for a binary classification task, two options in `{state.target_column}` column 
-                should be defined for the outcome of the classifier. 
-                By assigning multiple values to a class, multiple combinations of classifications can be tested.
+                For a binary classification task, one needs to define two classes based on the 
+                unique values in the `{state.target_column}` task column. 
+                It is possible to assign multiple values for each class.
             """)
             state['class_0'] = multiselect("Select Class 0:", unique_elements_lst, default=None)
             state['class_1'] = multiselect("Select Class 1:",
@@ -151,7 +151,7 @@ def checkpoint_for_data_upload(state, record_widgets):
             # EDA Part
             with st.beta_expander("EDA — Exploratory data analysis (^Recommended)"):
                 st.markdown("""
-                    Exploratory data analysis is performed on the whole dataset for providing more insight.
+                    Exploratory data analysis is performed on the whole dataset to provide more insight.
                     For more information, please visit 
                     [the dedicated Wiki page](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Exploratory-data-analysis).
                     """)
