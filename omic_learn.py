@@ -161,6 +161,11 @@ def checkpoint_for_data_upload(state, record_widgets):
                 if (state.eda_method == "PCA") and (len(state.proteins) < 6):
                     state['pca_show_features'] = st.checkbox("Show the feature attributes on the graph", value=False)
                 
+                if (state.eda_method == "Hierarchical clustering"):
+                    state['data_range'] = st.slider("Data range to be visualized", 
+                        0, len(state.proteins), (0, round(len(state.proteins) / 2)), step=3,
+                        help='In large datasets, it is not possible to visaulize all the features.')
+
                 if (state.eda_method != "None") and (st.button('Perform EDA', key='run')):
                     with st.spinner("Wait while performing EDA on the whole dataset"):
                         p = perform_EDA(state)
