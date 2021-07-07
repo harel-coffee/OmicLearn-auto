@@ -1,8 +1,9 @@
-streamlit==0.63.0
-pandas==1.0.1
-numpy==1.18.1
-scikit-learn==0.22.1
+streamlit==0.81.1
+pandas==1.2.4
+numpy==1.20.2
+scikit-learn==0.24.2
 xlrd==1.2.0
-plotly==4.9.0
-kaleido==0.0.1
-XlsxWriter
+plotly==4.14.3
+kaleido==0.2.1
+XlsxWriter==1.4.0
+watchdog==2.1.3

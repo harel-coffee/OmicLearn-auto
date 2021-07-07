@@ -9,6 +9,7 @@ from itertools import chain
 # Sklearn
 import sklearn
 import sklearn.metrics as metrics
+from sklearn.decomposition import PCA
 from sklearn.impute import SimpleImputer, KNNImputer
 from sklearn import svm, tree, linear_model, neighbors, ensemble
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
@@ -20,11 +21,13 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, La
 import plotly
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
+from scipy.spatial.distance import pdist, squareform
 
 # Define common colors
 blue_color = '#035672'
 red_color = '#f84f57'
-gray_color ='#f3f4f7'
+gray_color ='#ccc'
 
 # Define base metrics to be used
 scores = ['accuracy', 'roc_auc', 'precision', 'recall', 'f1', 'balanced_accuracy']
@@ -44,7 +47,88 @@ def make_recording_widget(f, widget_values):
 
     return wrapper
 
-@st.cache(persist=True)
+class objdict(dict):
+    """
+    Objdict class to conveniently store a state
+    """
+
+    def __getattr__(self, name):
+        if name in self:
+            return self[name]
+        else:
+            raise AttributeError("No such attribute: " + name)
+
+    def __setattr__(self, name, value):
+        self[name] = value
+
+    def __delattr__(self, name):
+        if name in self:
+            del self[name]
+        else:
+            raise AttributeError("No such attribute: " + name)
+
+
+def main_components():
+    """
+    Expose external CSS and create & return widgets
+    """
+    # External CSS
+    main_external_css = """
+        <style>
+            hr {margin: 15px 0px !important; background: #ff3a50}
+            .footer {position: absolute; height: 50px; bottom: -150px; width:100%; padding:10px; text-align:center; }
+            #MainMenu, .reportview-container .main footer {display: none;}
+            .btn-outline-secondary {background: #FFF !important}
+            .download_link {color: #f63366 !important; text-decoration: none !important; z-index: 99999 !important;
+                            cursor:pointer !important; margin: 15px 0px; border: 1px solid #f63366;
+                            text-align:center; padding: 8px !important; width: 200px;}
+            .download_link:hover {background: #f63366 !important; color: #FFF !important;}
+            h1, h2, h3, h4, h5, h6, a, a:visited {color: #f84f57 !important}
+            label, stText, p, .caption {color: #035672}
+            .css-17eq0hr {background: #035672 !important;}
+            .streamlit-expanderHeader {font-size: 16px !important;}
+            .css-17eq0hr label, stText, .caption, .css-j075dz, .css-1t42vg8 {color: #FFF !important}
+            .css-17eq0hr a {text-decoration:underline;}
+            .tickBarMin, .tickBarMax {color: #f84f57 !important}
+            .markdown-text-container p {color: #035672 !important}
+            .css-xq1lnh-EmotionIconBase {fill: #ff3a50 !important}
+            /*.css-hi6a2p {max-width: 885px !important}*/
+
+            /* Tabs */
+            .tabs { position: relative; min-height: 200px; clear: both; margin: 40px auto 0px auto; background: #efefef; box-shadow: 0 48px 80px -32px rgba(0,0,0,0.3); }
+            .tab {float: left;}
+            .tab label { background: #f84f57; cursor: pointer; font-weight: bold; font-size: 18px; padding: 10px; color: #fff; transition: background 0.1s, color 0.1s; margin-left: -1px; position: relative; left: 1px; top: -29px; z-index: 2; }
+            .tab label:hover {background: #035672;}
+            .tab [type=radio] { display: none; }
+            .content { position: absolute; top: -1px; left: 0; background: #fff; right: 0; bottom: 0; padding: 30px 20px; transition: opacity .1s linear; opacity: 0; }
+            [type=radio]:checked ~ label { background: #035672; color: #fff;}
+            [type=radio]:checked ~ label ~ .content { z-index: 1; opacity: 1; }
+
+            /* Feature Importance Plotly Link Color */
+            .js-plotly-plot .plotly svg a {color: #f84f57 !important}
+        </style>
+    """
+    st.markdown(main_external_css, unsafe_allow_html=True)
+
+    # Fundemental elements
+    widget_values = objdict()
+    record_widgets = objdict()
+
+    # Sidebar widgets
+    sidebar_elements = {
+        "button_": st.sidebar.button,
+        "slider_": st.sidebar.slider,
+        "number_input_": st.sidebar.number_input,
+        "selectbox_": st.sidebar.selectbox,
+        "multiselect": st.multiselect
+    }
+    for sidebar_key, sidebar_value in sidebar_elements.items():
+        record_widgets[sidebar_key] = make_recording_widget(sidebar_value, widget_values)
+
+    return widget_values, record_widgets
+
+
+@st.cache(persist=True, show_spinner=True)
 def load_data(file_buffer, delimiter):
     """
     Load data to pandas dataframe
@@ -209,7 +293,7 @@ def plot_feature_importance(feature_importance):
         feature_df = feature_df.iloc[:display_limit] # Show at most `display_limit` entries
         feature_df = feature_df.append(remainder)
 
-    feature_df["Feature_importance"] = feature_df["Feature_importance"].map('{:.3f}'.format)
+    feature_df["Feature_importance"] = feature_df["Feature_importance"].map('{:.3f}'.format).astype(np.float32)
     feature_df["Std"] = feature_df["Std"].map('{:.5f}'.format)
     feature_df_wo_links = feature_df.copy()
     feature_df["Name"] = feature_df["Name"].apply(lambda x: '<a href="https://www.ncbi.nlm.nih.gov/search/all/?term={}" title="Search on NCBI" target="_blank">{}</a>'.format(x, x)
@@ -368,10 +452,10 @@ def perform_cross_validation(state, cohort_column = None):
         skip = False
         if cohort_column is not None:
             if (len(set(y_train)) == 1):
-                st.warning(f"Only 1 class present in cohort {cohort_combo_names[i][0]}. Skipping training on {cohort_combo_names[i][0]} and predicting on {cohort_combo_names[i][1]}.")
+                st.info(f"Only 1 class present in cohort {cohort_combo_names[i][0]}. Skipping training on {cohort_combo_names[i][0]} and predicting on {cohort_combo_names[i][1]}.")
                 skip = True
             if (len(set(y_test)) == 1):
-                st.warning(f"Only 1 class present in cohort {cohort_combo_names[i][1]}. Skipping training on {cohort_combo_names[i][0]} and predicting on {cohort_combo_names[i][1]}.")
+                st.info(f"Only 1 class present in cohort {cohort_combo_names[i][1]}. Skipping training on {cohort_combo_names[i][0]} and predicting on {cohort_combo_names[i][1]}.")
                 skip = True
             if not skip:
                 cohort_combo_names_.append(cohort_combo_names[i])
@@ -597,7 +681,7 @@ def plot_roc_curve_cv(roc_curve_results, cohort_combos = None):
     p.update_xaxes(showline=True, linewidth=1, linecolor='black')
     p.update_yaxes(showline=True, linewidth=1, linecolor='black')
     p.update_layout(autosize=True,
-                    width=800,
+                    width=700,
                     height=700,
                     xaxis_title='False Positive Rate',
                     yaxis_title='True Positive Rate',
@@ -608,6 +692,13 @@ def plot_roc_curve_cv(roc_curve_results, cohort_combos = None):
                         scaleanchor = "x",
                         scaleratio = 1,
                         zeroline=True,
+                        ),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
                         ),
                     )
     return p
@@ -663,7 +754,7 @@ def plot_pr_curve_cv(pr_curve_results, class_ratio_test, cohort_combos = None):
     p.update_xaxes(showline=True, linewidth=1, linecolor='black')
     p.update_yaxes(showline=True, linewidth=1, range=[0, 1], linecolor='black')
     p.update_layout(autosize=True,
-                    width=800,
+                    width=700,
                     height=700,
                     xaxis_title='Recall',
                     yaxis_title='Precision',
@@ -675,6 +766,13 @@ def plot_pr_curve_cv(pr_curve_results, class_ratio_test, cohort_combos = None):
                         scaleratio = 1,
                         zeroline=True,
                         ),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
+                        ),
                     )
     return p
 
@@ -683,7 +781,7 @@ def get_system_report():
     Returns the package versions
     """
     report = {}
-    report['omic_learn_version'] = "v1.0.0"
+    report['omic_learn_version'] = "v1.1.0"
     report['python_version'] = sys.version[:5]
     report['pandas_version'] = pd.__version__
     report['numpy_version'] = np.version.version
@@ -728,3 +826,175 @@ def get_download_link(exported_object, name):
 
     else:
         raise NotImplementedError('This output format function is not implemented')
+
+def generate_dendrogram( matrix, labels, show_distances: bool = False, colorbar_title: str = "", ):
+    """Generate Dendrogram."""
+
+    # Initialize figure by creating upper dendrogram
+    fig = ff.create_dendrogram(
+        matrix,
+        orientation="bottom",
+        labels=labels,
+        colorscale=[gray_color] * 8,
+    )
+    for i in range(len(fig["data"])):
+        fig["data"][i]["yaxis"] = "y2"
+
+    # Create side dendrogram
+    dendro_side = ff.create_dendrogram(
+        matrix, orientation="right", colorscale=[gray_color] * 8
+    )
+    for i in range(len(dendro_side["data"])):
+        dendro_side["data"][i]["xaxis"] = "x2"
+
+    # Add Side Dendrogram Data to Figure
+    for data in dendro_side["data"]:
+        fig.add_trace(data)
+
+    # define dendro leaves
+    dendro_leaves = dendro_side["layout"]["yaxis"]["ticktext"]
+    dendro_leaves = list(map(int, dendro_leaves))
+
+    # get heatmap data (z)
+    if show_distances:
+        # calculate distances
+        heat_data = squareform(pdist(matrix))
+    else:
+        heat_data = matrix.values
+
+    # arrange the heatmap data according to the dendrogram clustering
+    heat_data = heat_data[dendro_leaves, :]
+    heat_data = heat_data[:, dendro_leaves]
+
+    heatmap = [
+        go.Heatmap(
+            x=dendro_leaves,
+            y=dendro_leaves,
+            z=heat_data,
+            colorscale=[
+                [0.0, blue_color],
+                [0.5, "#ffffff"],
+                [1.0, red_color],
+            ],
+            colorbar={"title": colorbar_title},
+            hovertemplate=(
+                "<b>Protein x:</b> %{x}<br><b>Protein y:</b> %{y}"
+                "<extra>r = %{z:.2f}</extra>"
+            ),
+        )
+    ]
+
+    heatmap[0]["x"] = fig["layout"]["xaxis"]["tickvals"]
+    heatmap[0]["y"] = dendro_side["layout"]["yaxis"]["tickvals"]
+    for data in heatmap:
+        fig.add_trace(data)
+
+    # modify layout
+    fig.update_layout(
+        {
+            "width": 800,
+            "height": 800,
+            "showlegend": False,
+            "hovermode": "closest",
+        }
+    )
+
+    # add labels to yaxis (needed for the hover)
+    fig["layout"]["yaxis"]["ticktext"] = fig["layout"]["xaxis"]["ticktext"]
+    fig["layout"]["yaxis"]["tickvals"] = fig["layout"]["xaxis"]["tickvals"]
+
+    # modify axes
+    params: dict = {
+        "mirror": False,
+        "showgrid": False,
+        "showline": False,
+        "zeroline": False,
+        "showticklabels": False,
+        "ticks": "",
+    }
+    fig.update_layout(
+        xaxis={"domain": [0.15, 1], **params},
+        xaxis2={"domain": [0, 0.15], **params},
+        yaxis={"domain": [0, 0.85], **params},
+        yaxis2={"domain": [0.825, 0.975], **params},
+    )
+
+    return fig
+
+def perform_EDA(state):
+    """
+    Perform EDA on the dataset by given method and return the chart
+    """
+    
+    data = state.df_sub[state.proteins].astype('float').fillna(0.0)
+    if state.eda_method == "Hierarchical clustering":
+        data_to_be_correlated = data.iloc[:, state.data_range[0]:state.data_range[1]]
+        corr = data_to_be_correlated.corr(method="pearson")
+        labels = corr.columns
+        p = generate_dendrogram(
+            matrix=corr,
+            labels=labels,
+            colorbar_title="Pearson correlation coeff.",
+        )
+
+        p.update_layout(autosize=True,
+                    width=800,
+                    height=800,
+                    xaxis_showgrid=False,
+                    yaxis_showgrid=False,
+                    plot_bgcolor= 'rgba(255, 255, 255, 0)',
+                    )
+        
+    elif state.eda_method == "PCA":
+        n_components = 2
+        pca = PCA(n_components=n_components)
+        pca.fit(data)
+        components = pca.transform(data)
+        loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
+        pca_color = state.df_sub_y.replace({True:state.class_0, False:state.class_1})
+        labels = {
+            str(i): f"PC {i+1} ({var:.1f}%)"
+            for i, var in enumerate(pca.explained_variance_ratio_ * 100)
+        }
+        labels["color"] = state.target_column
+        p = px.scatter(components, x=0, y=1, color=pca_color, labels=labels, hover_name=data.index)
+        
+        # Show feature lines
+        if hasattr(state, "pca_show_features") and (state.pca_show_features==True):
+            for i, feature in enumerate(data.columns):
+                p.add_shape(
+                    type='line',
+                    x0=0, y0=0,
+                    x1=loadings[i, 0],
+                    y1=loadings[i, 1]
+                )
+                p.add_annotation(
+                    x=loadings[i, 0],
+                    y=loadings[i, 1],
+                    ax=0, ay=0,
+                    xanchor="center",
+                    yanchor="bottom",
+                    text=feature,
+                )
+        
+        # Tune other configs
+        p.update_xaxes(showline=True, linewidth=1, linecolor='black')
+        p.update_yaxes(showline=True, linewidth=1, linecolor='black')
+        p.update_layout(autosize=True,
+                    width=700,
+                    height=500,
+                    xaxis_title='PCA 1',
+                    yaxis_title='PCA 2',
+                    xaxis_showgrid=False,
+                    yaxis_showgrid=False,
+                    plot_bgcolor= 'rgba(255, 255, 255, 0)',
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
+                        ),
+                    )
+
+    return p

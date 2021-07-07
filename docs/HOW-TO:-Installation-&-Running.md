@@ -1,4 +1,5 @@
 ## **Table of Contents**
+- [**Table of Contents**](#table-of-contents)
 - [Installation instructions](#installation-instructions)
 - [Running](#running)
 - [Running with Docker](#running-with-docker)
@@ -48,4 +49,4 @@ To build the docker, navigate to the OmicLearn directory:
 To run the docker container type:
 * `docker-compose up`
 
-* The OmicLearn page will be accessible via [`http://localhost`](http://localhost)
+* The OmicLearn page will be accessible via [`http://localhost:8501`](http://localhost:8501)
