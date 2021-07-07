@@ -13,6 +13,10 @@ import utils.session_states as session_states
 # ML Functionalities
 from utils.ml_helper import perform_cross_validation, transform_dataset
 
+# Plot Functionalities
+from utils.plot_helper import (plot_confusion_matrices, plot_feature_importance,
+                             plot_pr_curve_cv, plot_roc_curve_cv, perform_EDA)
+
 # FIXME: Fix here
 from utils.helper import (get_download_link, get_system_report, load_data,
                           objdict, main_components,
