@@ -1,18 +1,24 @@
 """OmicLearn main file."""
 import random
-from datetime import datetime
-import numpy as np
-import pandas as pd
-import streamlit as st
-from PIL import Image
 import warnings
+import pandas as pd
+from PIL import Image
+import streamlit as st
+from datetime import datetime
 warnings.simplefilter("ignore", FutureWarning)
+
+# Session state implementation
 import utils.session_states as session_states
+
+# ML Functionalities
+from utils.ml_helper import perform_cross_validation, transform_dataset
+
+# FIXME: Fix here
 from utils.helper import (get_download_link, get_system_report, load_data,
-                          objdict, main_components, perform_cross_validation,
+                          objdict, main_components,
                           plot_confusion_matrices, plot_feature_importance,
                           plot_pr_curve_cv, plot_roc_curve_cv,
-                          transform_dataset, perform_EDA)
+                          perform_EDA)
 
 # Set the configs
 APP_TITLE = "OmicLearn — ML platform for biomarkers"
