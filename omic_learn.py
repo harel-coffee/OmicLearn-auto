@@ -6,23 +6,14 @@ from PIL import Image
 import streamlit as st
 from datetime import datetime
 warnings.simplefilter("ignore", FutureWarning)
-
-# Session state implementation
+# Session state
 import utils.session_states as session_states
-
 # ML Functionalities
 from utils.ml_helper import perform_cross_validation, transform_dataset
-
-# Plot Functionalities
+# Plotting
 from utils.plot_helper import (plot_confusion_matrices, plot_feature_importance,
                              plot_pr_curve_cv, plot_roc_curve_cv, perform_EDA)
 
-# FIXME: Fix here
-from utils.helper import (get_download_link, get_system_report, load_data,
-                          objdict, main_components,
-                          plot_confusion_matrices, plot_feature_importance,
-                          plot_pr_curve_cv, plot_roc_curve_cv,
-                          perform_EDA)
 
 # Set the configs
 APP_TITLE = "OmicLearn — ML platform for biomarkers"
