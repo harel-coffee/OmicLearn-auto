@@ -290,8 +290,8 @@ def classify_and_plot(state):
 # Main Function
 def OmicLearn_Main():
 
+    # Define state
     state = objdict()
-
     state['df'] = pd.DataFrame()
     state['class_0'] = None
     state['class_1'] = None
@@ -300,13 +300,13 @@ def OmicLearn_Main():
     widget_values, record_widgets = main_components()
 
     # Welcome text and Data uploading
-    state = main_text_and_data_upload(state)
+    state = main_text_and_data_upload(state, APP_TITLE)
 
     # Checkpoint for whether data uploaded/selected
     state = checkpoint_for_data_upload(state, record_widgets)
 
     # Sidebar widgets
-    state = generate_sidebar_elements(state, record_widgets)
+    state = generate_sidebar_elements(state, icon, report, record_widgets)
 
     # Analysis Part
     if len(state.df) > 0 and state.target_column == "":
@@ -338,7 +338,7 @@ def OmicLearn_Main():
         state = classify_and_plot(state)
 
         # Generate summary text
-        generate_text(state)
+        generate_text(state, report)
 
         # Session and Run info
         widget_values["Date"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S") + " (UTC)"
@@ -353,7 +353,7 @@ def OmicLearn_Main():
         save_sessions(widget_values, session_state.user_name)
 
         # Generate footer
-        generate_footer_parts()
+        generate_footer_parts(report)
 
     else:
         pass
