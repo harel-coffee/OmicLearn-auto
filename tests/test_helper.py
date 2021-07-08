@@ -6,7 +6,8 @@ import numpy as np
 import pandas as pd
 
 sys.path.append('..')
-from utils.helper import load_data, normalize_dataset, transform_dataset
+from utils.ui_helper import load_data
+from utils.ml_helper import normalize_dataset, transform_dataset
 
 state = {}
 
