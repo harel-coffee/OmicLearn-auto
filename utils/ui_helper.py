@@ -74,7 +74,7 @@ def main_components():
             .tickBarMin, .tickBarMax {color: #f84f57 !important}
             .markdown-text-container p {color: #035672 !important}
             .css-xq1lnh-EmotionIconBase {fill: #ff3a50 !important}
-            /*.css-hi6a2p {max-width: 885px !important}*/
+            .css-hi6a2p {max-width: 800px !important}
 
             /* Tabs */
             .tabs { position: relative; min-height: 200px; clear: both; margin: 40px auto 0px auto; background: #efefef; box-shadow: 0 48px 80px -32px rgba(0,0,0,0.3); }
