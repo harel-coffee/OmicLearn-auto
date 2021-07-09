@@ -24,7 +24,7 @@ from utils.ui_helper import (main_components, get_system_report, save_sessions,
                              generate_text, generate_footer_parts)
 
 # Set the configs
-APP_TITLE = "OmicLearn — ML platform for biomarkers"
+APP_TITLE = "OmicLearn — ML platform for omics datasets"
 st.set_page_config(
     page_title = APP_TITLE, 
     page_icon = Image.open('./utils/omic_learn.ico'), 
