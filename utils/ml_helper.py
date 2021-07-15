@@ -175,7 +175,7 @@ def return_classifier(classifier, classifier_params):
 
     if classifier == 'XGBoost':
         from xgboost import XGBClassifier
-        clf = XGBClassifier()
+        clf = XGBClassifier(use_label_encoder=False, eval_metric='error')
     elif classifier == 'LogisticRegression':
         clf = linear_model.LogisticRegression()
     elif classifier == 'KNeighborsClassifier':
