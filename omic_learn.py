@@ -110,7 +110,7 @@ def checkpoint_for_data_upload(state, record_widgets):
                         0, len(state.proteins), (0, round(len(state.proteins) / 2)), step=3,
                         help='In large datasets, it is not possible to visaulize all the features.')
 
-                if (state.eda_method != "None") and (st.button('Perform EDA', key='run')):
+                if (state.eda_method != "None") and (st.button('Perform EDA', key='eda_run')):
                     with st.spinner("Wait while performing EDA on the whole dataset"):
                         p = perform_EDA(state)
                         st.plotly_chart(p, use_container_width=True)
