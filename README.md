@@ -35,20 +35,10 @@ Transparent exploration of machine learning for biomarker discovery from proteom
 
 - It is strongly recommended to install OmicLearn in its own environment using [Anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html).
 
-  1. Open the console and create a new conda environment: `conda create --name omic_learn python=3.7`
-  2. Activate the environment: `conda activate omic_learn` for Linux / Mac Os X / Windows
+  1. Redirect to the folder of choice and clone the repository: `git clone https://github.com/OmicEra/OmicLearn`
+  2. Install the required packages with `conda env create --file environment.yml`
+  3. Activate the environment with  `conda activate omic_learn`
   
-  
-  > **Note:** Type the following command for conda versions prior to `4.6`:
-  >
-  > `source activate omic_learn` for macOS and Linux
-  >
-  > `activate omic_learn` for Windows
-
-  3. Redirect to the folder of choice and clone the repository: `git clone https://github.com/OmicEra/OmicLearn`
-  4. Install the required packages with `pip install -r requirements.txt`
-  5. To be able to use Xgboost, install via conda: `conda install py-xgboost`
-
 - After a successful installation, type the following command to run OmicLearn:
 
   `streamlit run omic_learn.py --browser.gatherUsageStats False`
