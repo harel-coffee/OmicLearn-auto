@@ -297,12 +297,12 @@ def main_text_and_data_upload(state, APP_TITLE):
         - 'Features' such as protein IDs, gene names, lipids or miRNA IDs should be uppercase.
         - Additional features should be marked with a leading '_'.
     """)
-    
+
     with st.beta_expander("Upload or select sample dataset (*Required)", expanded=True):
         file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
-        st.markdown("""**Note:** By uploading a file, you agree that you accepting 
-                    [the license agreement](https://github.com/OmicEra/OmicLearn/blob/master/LICENSE).
-                    We do not save the data you upload via the file uploader; 
+        st.markdown("""**Note:** By uploading a file, you agree to our
+                    [Apache License](https://github.com/OmicEra/OmicLearn/blob/master/LICENSE).
+                    Data that is uploaded via the file uploader will not be saved by us;
                     it is only stored temporarily in RAM to perform the calculations.""")
         delimiter = st.selectbox("Determine the delimiter in your dataset", ["Excel File", "Comma (,)", "Semicolon (;)"])
         df, warnings = load_data(file_buffer, delimiter)
@@ -318,16 +318,16 @@ def main_text_and_data_upload(state, APP_TITLE):
         max_df_length = 30
 
         if state.sample_file != 'None' and dataframe_length:
-            st.warning("**WARNING:** Please, either choose a sample file or set it as `None` to work on your file")
+            st.warning("**WARNING:** File uploaded but sample file selected. Please switch sample file to `None` to use your file.")
             state['df'] = pd.DataFrame()
         elif state.sample_file != 'None':
             if state.sample_file == "Alzheimer":
                 st.info("""
-                    **This dataset is retrieved from the following paper and the code for parsing is available at
+                    **This dataset was retrieved from the following paper and the code for parsing is available at
                     [GitHub](https://github.com/OmicEra/OmicLearn/blob/master/data/Alzheimer_paper.ipynb):**\n
                     Bader, J., Geyer, P., Müller, J., Strauss, M., Koch, M., & Leypoldt, F. et al. (2020).
                     Proteome profiling in cerebrospinal fluid reveals novel biomarkers of Alzheimer's disease.
-                    Molecular Systems Biology, 16(6). doi: [10.15252/msb.20199356](http://doi.org/10.15252/msb.20199356) 
+                    Molecular Systems Biology, 16(6). doi: [10.15252/msb.20199356](http://doi.org/10.15252/msb.20199356)
                     """)
             state['df'] = pd.read_excel('data/' + state.sample_file + '.xlsx')
             st.markdown("Using the following dataset:")
@@ -403,10 +403,10 @@ def generate_text(state, report):
     text = ""
     # Packages
     packages_plain_text = """
-        OmicLearn ({omic_learn_version}) was utilized for performing the data analysis, model execution, and generating the plots and charts.
+        OmicLearn ({omic_learn_version}) was utilized for performing data analysis, model execution, and creation of plots and charts.
         Machine learning was done in Python ({python_version}). Feature tables were imported via the Pandas package ({pandas_version}) and manipulated using the Numpy package ({numpy_version}).
         The machine learning pipeline was employed using the scikit-learn package ({sklearn_version}).
-        For generating the plots and charts, Plotly ({plotly_version}) library was used.
+        Plotly ({plotly_version}) library was used for plotting.
     """
     text += packages_plain_text.format(**report)
 
@@ -432,7 +432,7 @@ def generate_text(state, report):
         text += 'Features were selected using a {} (n_trees={}) strategy with the maximum number of {} features. '.format(state.feature_method, state.n_trees, state.max_features)
     else:
         text += 'Features were selected using a {} strategy with the maximum number of {} features. '.format(state.feature_method, state.max_features)
-    text += 'Normalization and feature selection was individually performed using the training data of each split. '
+    text += 'During training, normalization and feature selection was individually performed using the data of each split. '
 
     # Classification
     params = [f'{k} = {v}' for k, v in state.classifier_params.items()]
@@ -441,7 +441,7 @@ def generate_text(state, report):
     # Cross-Validation
     if state.cv_method == 'RepeatedStratifiedKFold':
         cv_plain_text = """
-            When using (RepeatedStratifiedKFold) a repeated (n_repeats={}), stratified cross-validation (n_splits={}) approach to classify {} vs. {},
+            When using a repeated (n_repeats={}), stratified cross-validation (RepeatedStratifiedKFold, n_splits={}) approach to classify {} vs. {},
             we achieved a receiver operating characteristic (ROC) with an average AUC (area under the curve) of {:.2f} ({:.2f} std)
             and precision-recall (PR) Curve with an average AUC of {:.2f} ({:.2f} std).
         """
@@ -449,7 +449,7 @@ def generate_text(state, report):
                                      state.summary.loc['mean']['roc_auc'], state.summary.loc['std']['roc_auc'], state.summary.loc['mean']['pr_auc'], state.summary.loc['std']['pr_auc'])
     else:
         cv_plain_text = """
-            When using {} cross-validation approach (n_splits={}) to classify {} vs. {}, we achieved a receiver operating characteristic (ROC)
+            When using a {} cross-validation approach (n_splits={}) to classify {} vs. {}, we achieved a receiver operating characteristic (ROC)
             with an average AUC (area under the curve) of {:.2f} ({:.2f} std) and Precision-Recall (PR) Curve with an average AUC of {:.2f} ({:.2f} std).
         """
         text += cv_plain_text.format(state.cv_method, state.cv_splits, ''.join(state.class_0), ''.join(state.class_1),
@@ -483,7 +483,7 @@ def generate_footer_parts(report):
             <div class="tab"> <input type="radio" id="tab-2" name="tab-group-1"> <label for="tab-2">Report bugs</label> <div class="content">
                 <p><br>
                     We appreciate all contributions. 👍 <br>
-                    You can report the bugs or request a feature using the link below or sending us an e-mail:
+                    You can report bugs or request a feature using the link below or sending us an e-mail:
                     <br><br>
                     <a class="download_link" href="https://github.com/OmicEra/OmicLearn/issues/new/choose" target="_blank">Report a bug via GitHub</a>
                     <a class="download_link" href="mailto:info@omicera.com">Report a bug via Email</a>

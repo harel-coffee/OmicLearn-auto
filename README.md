@@ -10,7 +10,7 @@
 ---
 ## OmicLearn
 
-Transparent exploration of machine learning for biomarker discovery from proteomics and omics data
+Transparent exploration of machine learning for biomarker discovery from proteomics and omics data.
 
 
 ## Manuscript
@@ -22,14 +22,12 @@ Transparent exploration of machine learning for biomarker discovery from proteom
 > bioRxiv 2021.03.05.434053; doi: https://doi.org/10.1101/2021.03.05.434053
 
 
-## Access
+## Online Access
 
-🟢 <a href="https://omiclearn.com/" target="_blank">OmicLearn.com</a>
-
-🟢 <a href="https://share.streamlit.io/omicera/omiclearn/omic_learn.py" target="_blank">Streamlit Share (collects usage statistics - XGBoost not installed)</a>
+🟢 <a href="https://share.streamlit.io/omicera/omiclearn/omic_learn.py" target="_blank"> Streamlit Share</a>
 
 
-## Installation & Running
+## Local Installation & Running
 
 > More information about `Installation & Running` is available on our **[Wiki pages](https://github.com/OmicEra/OmicLearn/wiki/HOW-TO:-Installation-&-Running)**.
 
@@ -38,14 +36,14 @@ Transparent exploration of machine learning for biomarker discovery from proteom
   1. Redirect to the folder of choice and clone the repository: `git clone https://github.com/OmicEra/OmicLearn`
   2. Install the required packages with `conda env create --file environment.yml`
   3. Activate the environment with  `conda activate omic_learn`
-  
+
 - After a successful installation, type the following command to run OmicLearn:
 
   `streamlit run omic_learn.py --browser.gatherUsageStats False`
-  
+
   > `Running with Docker` option is also available. Please, check the installation instructions on **[the Wiki pages](https://github.com/OmicEra/OmicLearn/wiki/HOW-TO:-Installation-&-Running)**.
-  
- - After starting the streamlit server, the OmicLearn page should be automatically opened in your browser (Default link: [`http://localhost:8501`](http://localhost:8501) 
+
+ - After starting the streamlit server, the OmicLearn page should be automatically opened in your browser (Default link: [`http://localhost:8501`](http://localhost:8501)
 
 ## Getting Started with OmicLearn
 
@@ -55,13 +53,13 @@ The following image displays the main steps of OmicLearn:
 
 Detailed instructions on how to get started with OmicLearn can be found **[here.](https://github.com/OmicEra/OmicLearn/wiki/HOW-TO:-Using)**
 
-On this page, you can click on the titles listed in the *Table of Contents*, which contains instructions for each section.
+On this page, you can click on the titles listed in the *Table of Contents*, which contain instructions for each section.
 
 ## Contributing
 All contributions are welcome. 👍
 
-📰 To get started, please check out our **[`CONTRIBUTING`](https://github.com/OmicEra/OmicLearn/blob/master/CONTRIBUTING.md)** guidelines. 
+📰 To get started, please check out our **[`CONTRIBUTING`](https://github.com/OmicEra/OmicLearn/blob/master/CONTRIBUTING.md)** guidelines.
 
 When contributing to **OmicLearn**, please **[open a new issue](https://github.com/OmicEra/OmicLearn/issues/new/choose)** to report the bug or discuss the changes you plan before sending a PR (pull request).
 
-Also, be aware that you agree to the **[`OmicEra Individual Contributor License Agreement`](https://github.com/OmicEra/OmicLearn/blob/master/CLA.md)** by submitting your code. 🤝
+We appreciate community contributions to the repository. By signing our **[`OmicEra Individual Contributor License Agreement`](https://github.com/OmicEra/OmicLearn/blob/master/CLA.md)**, we ensure that the community is free to use your contributions.  🤝

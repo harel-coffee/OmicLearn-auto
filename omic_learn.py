@@ -20,15 +20,15 @@ from utils.plot_helper import (plot_confusion_matrices, plot_feature_importance,
 # UI components and others func.
 from utils.ui_helper import (main_components, get_system_report, save_sessions,
                              load_data, main_text_and_data_upload, objdict,
-                             generate_sidebar_elements, get_download_link, 
+                             generate_sidebar_elements, get_download_link,
                              generate_text, generate_footer_parts)
 
 # Set the configs
 APP_TITLE = "OmicLearn — ML platform for omics datasets"
 st.set_page_config(
-    page_title = APP_TITLE, 
-    page_icon = Image.open('./utils/omic_learn.ico'), 
-    layout = "centered", 
+    page_title = APP_TITLE,
+    page_icon = Image.open('./utils/omic_learn.ico'),
+    layout = "centered",
     initial_sidebar_state = "auto")
 icon = Image.open('./utils/omic_learn.png')
 report = get_system_report()
@@ -64,10 +64,10 @@ def checkpoint_for_data_upload(state, record_widgets):
         # Dataset -- Feature selections
         with st.beta_expander("Classification target (*Required)"):
             st.markdown("""
-                Classification target refers to the column that contains the variables that are used two distinguish the two classes. 
+                Classification target refers to the column that contains the variables that are used two distinguish the two classes.
                 In the next section, the unique values of this column can be used to define the two classes.
             """)
-            state['target_column'] = st.selectbox("Select target column:", [""] + state.not_proteins, 
+            state['target_column'] = st.selectbox("Select target column:", [""] + state.not_proteins,
                                         format_func=lambda x: "Select a classification target" if x == "" else x)
             if state.target_column == "":
                 unique_elements_lst = []
@@ -80,8 +80,8 @@ def checkpoint_for_data_upload(state, record_widgets):
         # Dataset -- Class definitions
         with st.beta_expander("Define classes (*Required)"):
             st.markdown(f"""
-                For a binary classification task, one needs to define two classes based on the 
-                unique values in the `{state.target_column}` task column. 
+                For a binary classification task, one needs to define two classes based on the
+                unique values in the `{state.target_column}` task column.
                 It is possible to assign multiple values for each class.
             """)
             state['class_0'] = multiselect("Select Class 0:", unique_elements_lst, default=None)
@@ -95,23 +95,23 @@ def checkpoint_for_data_upload(state, record_widgets):
             # EDA Part
             with st.beta_expander("EDA — Exploratory data analysis (^Recommended)"):
                 st.markdown("""
-                    Exploratory data analysis is performed on the whole dataset to provide more insight.
-                    For more information, please visit 
+                    Use exploratory data anlysis on your dateset to identify potential correlations and biases.
+                    For more information, please visit
                     [the dedicated Wiki page](https://github.com/OmicEra/OmicLearn/wiki/METHODS-%7C-3.-Exploratory-data-analysis).
                     """)
                 state['df_sub_y'] = state.df_sub[state.target_column].isin(state.class_0)
                 state['eda_method'] = st.selectbox("Select an EDA method:", ["None", "PCA", "Hierarchical clustering"])
-                
+
                 if (state.eda_method == "PCA") and (len(state.proteins) < 6):
                     state['pca_show_features'] = st.checkbox("Show the feature attributes on the graph", value=False)
-                
+
                 if (state.eda_method == "Hierarchical clustering"):
-                    state['data_range'] = st.slider("Data range to be visualized", 
+                    state['data_range'] = st.slider("Data range to be visualized",
                         0, len(state.proteins), (0, round(len(state.proteins) / 2)), step=3,
                         help='In large datasets, it is not possible to visaulize all the features.')
 
-                if (state.eda_method != "None") and (st.button('Perform EDA', key='eda_run')):
-                    with st.spinner("Wait while performing EDA on the whole dataset"):
+                if (state.eda_method != "None") and (st.button('Generate plot', key='eda_run')):
+                    with st.spinner("Wait while performing EDA on the whole dataset."):
                         p = perform_EDA(state)
                         st.plotly_chart(p, use_container_width=True)
                         get_download_link(p, f"{state.eda_method}.pdf")
@@ -140,11 +140,11 @@ def checkpoint_for_data_upload(state, record_widgets):
                 else:
                     state['exclude_features'] = multiselect("Select features to be excluded:",
                                                                 state.proteins, default=[])
-            
+
             # Manual feature selection
             with st.beta_expander("Manually select features"):
-                st.markdown("Manually select a subset of features. If only these features should be used, also set the "
-                            "`Feature selection` method to `None`. Otherwise feature selection will be applied.")
+                st.markdown("Manually select a subset of features. If only these features should be used, additionally set the "
+                            "`Feature selection` method to `None`. Otherwise, feature selection will be applied, and only a subset of the selected features is used.")
                 manual_users_features = multiselect("Select your features manually:", state.proteins, default=None)
             if manual_users_features:
                 state.proteins = manual_users_features
@@ -237,7 +237,7 @@ def classify_and_plot(state):
         state['summary'] = pd.DataFrame(pd.DataFrame(cv_results).describe())
         st.write(state.summary)
         st.info("""
-            **Info:** `Mean precision` and `Mean recall` values provided in the table above 
+            **Info:** `Mean precision` and `Mean recall` values provided in the table above
             are calculated as the mean of all individual splits shown in the confusion matrix,
             not the "Sum of all splits" matrix.
             """)
@@ -323,15 +323,15 @@ def OmicLearn_Main():
 
         if state.cohort_column is not None:
             state['X_cohort'] = subset[state.cohort_column]
-        
+
         # Show the running info text
         st.info(f"""
             **Running info:**
             - Using the following features: **Class 0 `{state.class_0}`, Class 1 `{state.class_1}`**.
             - Using classifier **`{state.classifier}`**.
             - Using a total of  **`{len(state.features)}`** features.
-            - Note that OmicLearn is intended to be an exploratory tool to assess the performance of algorithms, 
-                rather than a classification model for production. 
+            - Note that OmicLearn is intended to be an exploratory tool to assess the performance of algorithms,
+                rather than a classification model for production.
         """)
 
         # Plotting and Get the results
