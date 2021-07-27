@@ -13,8 +13,7 @@ try:
     from xgboost import XGBClassifier
     xgboost_installed = True
 except ModuleNotFoundError:
-    st.warning('**WARNING:** Xgboost not installed. To use xgboost install using `conda install py-xgboost`')
-
+    pass
 # Widget for recording
 def make_recording_widget(f, widget_values):
     """
@@ -291,14 +290,19 @@ def load_data(file_buffer, delimiter):
 # Show main text and data upload section
 def main_text_and_data_upload(state, APP_TITLE):
     st.title(APP_TITLE)
+
     st.info("""
-        - Upload your excel / csv file here. Maximum size is 200 Mb.
-        - Each row corresponds to a sample, each column to a feature.
-        - 'Features' such as protein IDs, gene names, lipids or miRNA IDs should be uppercase.
-        - Additional features should be marked with a leading '_'.
+    Note: It is possible to get artificially high or low performance because of technical and biological artifacts in the data.
+    While OmicLearn has the functionality to perform basic exploratory data analysis (EDA) such as PCA, it is not meant to substitute throughout data exploration but rather add a machine learning layer.
     """)
 
     with st.beta_expander("Upload or select sample dataset (*Required)", expanded=True):
+        st.info("""
+            - Upload your excel / csv file here. Maximum size is 200 Mb.
+            - Each row corresponds to a sample, each column to a feature.
+            - 'Features' such as protein IDs, gene names, lipids or miRNA IDs should be uppercase.
+            - Additional features should be marked with a leading '_'.
+        """)
         file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
         st.markdown("""**Note:** By uploading a file, you agree to our
                     [Apache License](https://github.com/OmicEra/OmicLearn/blob/master/LICENSE).
@@ -406,7 +410,7 @@ def generate_text(state, report):
         OmicLearn ({omic_learn_version}) was utilized for performing data analysis, model execution, and creation of plots and charts.
         Machine learning was done in Python ({python_version}). Feature tables were imported via the Pandas package ({pandas_version}) and manipulated using the Numpy package ({numpy_version}).
         The machine learning pipeline was employed using the scikit-learn package ({sklearn_version}).
-        Plotly ({plotly_version}) library was used for plotting.
+        The Plotly ({plotly_version}) library was used for plotting.
     """
     text += packages_plain_text.format(**report)
 
