@@ -33,6 +33,13 @@ st.set_page_config(
 icon = Image.open('./utils/omic_learn.png')
 report = get_system_report()
 
+# This needs to be here as it needs to be after setting ithe initial_sidebar_state
+try:
+    import xgboost
+except ModuleNotFoundError:
+    st.warning('**WARNING:** Xgboost not installed. To use xgboost install using `conda install py-xgboost`')
+
+
 # Choosing sample dataset and data parameter selections
 def checkpoint_for_data_upload(state, record_widgets):
     multiselect = record_widgets.multiselect
@@ -111,7 +118,7 @@ def checkpoint_for_data_upload(state, record_widgets):
                         help='In large datasets, it is not possible to visaulize all the features.')
 
                 if (state.eda_method != "None") and (st.button('Generate plot', key='eda_run')):
-                    with st.spinner("Wait while performing EDA on the whole dataset."):
+                    with st.spinner(f"Performing {state.eda_method}.."):
                         p = perform_EDA(state)
                         st.plotly_chart(p, use_container_width=True)
                         get_download_link(p, f"{state.eda_method}.pdf")
@@ -331,7 +338,7 @@ def OmicLearn_Main():
             - Using classifier **`{state.classifier}`**.
             - Using a total of  **`{len(state.features)}`** features.
             - Note that OmicLearn is intended to be an exploratory tool to assess the performance of algorithms,
-                rather than a classification model for production.
+                rather than providing a classification model for production.
         """)
 
         # Plotting and Get the results
