@@ -131,7 +131,8 @@ def checkpoint_for_data_upload(state, record_widgets):
             # Exclude features
             with st.beta_expander("Exclude features"):
                 state['exclude_features'] = []
-                st.markdown("Exclude some features from the model training by selecting or uploading a CSV file")
+                st.markdown("Exclude some features from the model training by selecting or uploading a CSV file. "
+                            "This can be useful when, e.g., re-running a model without a top feature and assessing the difference in classification accuracy.")
                 # File uploading target_column for exclusion
                 exclusion_file_buffer = st.file_uploader("Upload your CSV (comma(,) seperated) file here in which each row corresponds to a feature to be excluded.", type=["csv"])
                 exclusion_df, exc_df_warnings = load_data(exclusion_file_buffer, "Comma (,)")
@@ -151,7 +152,7 @@ def checkpoint_for_data_upload(state, record_widgets):
             # Manual feature selection
             with st.beta_expander("Manually select features"):
                 st.markdown("Manually select a subset of features. If only these features should be used, additionally set the "
-                            "`Feature selection` method to `None`. Otherwise, feature selection will be applied, and only a subset of the selected features is used.")
+                            "`Feature selection` method to `None`. Otherwise, feature selection will be applied, and only a subset of the manually selected features is used.")
                 manual_users_features = multiselect("Select your features manually:", state.proteins, default=None)
             if manual_users_features:
                 state.proteins = manual_users_features
@@ -191,6 +192,9 @@ def classify_and_plot(state):
             st.markdown(f'This is the average feature importance from all {state.cv_splits*state.cv_repeats} cross validation runs.')
         else:
             st.markdown(f'This is the average feature importance from all {state.cv_splits} cross validation runs.')
+
+        top_features = []
+
         if cv_curves['feature_importances_'] is not None:
 
             # Check whether all feature importance attributes are 0 or not
@@ -205,8 +209,10 @@ def classify_and_plot(state):
                 st.subheader("Feature importances from classifier table")
                 st.write(feature_df.to_html(escape=False, index=False), unsafe_allow_html=True)
                 get_download_link(feature_df_wo_links, 'clf_feature_importances.csv')
+
+                top_features = feature_df.index.to_list()
             else:
-                st.info("All feature importance attribute as zero (0). Hence, the plot and table are not displayed.")
+                st.info("All feature importance attribute are zero (0). The plot and table are not displayed.")
         else:
             st.info('Feature importance attribute is not implemented for this classifier.')
 
@@ -357,6 +363,7 @@ def OmicLearn_Main():
         user_name = str(random.randint(0, 10000)) + "OmicLearn"
         session_state = session_states.get(user_name=user_name)
         widget_values["user"] = session_state.user_name
+        widget_values["top_features"] = top_features
         save_sessions(widget_values, session_state.user_name)
 
         # Generate footer
