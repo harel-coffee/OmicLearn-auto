@@ -185,6 +185,8 @@ def classify_and_plot(state):
     cv_results, cv_curves = perform_cross_validation(state)
 
     st.header('Cross-validation results')
+
+    top_features = []
     # Feature importances from the classifier
     with st.beta_expander("Feature importances from the classifier"):
         st.subheader('Feature importances from the classifier')
@@ -193,7 +195,7 @@ def classify_and_plot(state):
         else:
             st.markdown(f'This is the average feature importance from all {state.cv_splits} cross validation runs.')
 
-        top_features = []
+
 
         if cv_curves['feature_importances_'] is not None:
 
@@ -215,7 +217,7 @@ def classify_and_plot(state):
                 st.info("All feature importance attribute are zero (0). The plot and table are not displayed.")
         else:
             st.info('Feature importance attribute is not implemented for this classifier.')
-
+    state['top_features'] = top_features
     # ROC-AUC
     with st.beta_expander("Receiver operating characteristic Curve and Precision-Recall Curve"):
         st.subheader('Receiver operating characteristic')
@@ -363,7 +365,7 @@ def OmicLearn_Main():
         user_name = str(random.randint(0, 10000)) + "OmicLearn"
         session_state = session_states.get(user_name=user_name)
         widget_values["user"] = session_state.user_name
-        widget_values["top_features"] = top_features
+        widget_values["top_features"] = state.top_features
         save_sessions(widget_values, session_state.user_name)
 
         # Generate footer
