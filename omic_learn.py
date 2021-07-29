@@ -11,7 +11,7 @@ warnings.simplefilter("ignore", FutureWarning)
 import utils.session_states as session_states
 
 # ML functionalities
-from utils.ml_helper import perform_cross_validation, transform_dataset
+from utils.ml_helper import perform_cross_validation, transform_dataset, calculate_cm
 
 # Plotting
 from utils.plot_helper import (plot_confusion_matrices, plot_feature_importance,
@@ -245,6 +245,18 @@ def classify_and_plot(state):
         if p:
             get_download_link(p, 'cm.pdf')
             get_download_link(p, 'cm.svg')
+
+        cm_results = [calculate_cm(*_)[1] for _ in cv_curves['y_hats_']]
+
+        cm_results = pd.DataFrame(cm_results, columns=['TPR','FPR','TNR','FNR'])
+        #(tpr, fpr, tnr, fnr)
+        cm_results_ = cm_results.mean().to_frame()
+        cm_results_.columns = ['Mean']
+
+        cm_results_['Std'] = cm_results.std()
+
+        st.write("Average peformance for all splits:")
+        st.write(cm_results_)
 
     # Results table
     with st.beta_expander("Table for run results"):
