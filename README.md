@@ -24,7 +24,7 @@ Transparent exploration of machine learning for biomarker discovery from proteom
 
 ## Online Access
 
-🟢 <a href="https://share.streamlit.io/omicera/omiclearn/omic_learn.py" target="_blank"> Streamlit Share</a>
+🟢  <a href="https://omiclearn.com" target="_blank"> OmicLearn.com </a>
 
 
 ## Local Installation & Running
