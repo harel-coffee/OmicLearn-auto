@@ -68,7 +68,7 @@ def main_components():
             label, stText, p, .caption {color: #035672}
             .css-1d391kg {background: #035672 !important;}
             .streamlit-expanderHeader {font-size: 16px !important;}
-            .css-17eq0hr label, stText, .caption, .css-j075dz, .css-1t42vg8, .css-1vgnld3, .css-6sz9vy {color: #FFF !important}
+            label, stText, .caption, .css-1vgnld3, .css-6sz9vy, .css-1b0udgb {color: #FFF !important}
             .css-17eq0hr a {text-decoration:underline;}
             .tickBarMin, .tickBarMax {color: #f84f57 !important}
             .markdown-text-container p {color: #035672 !important}
@@ -311,6 +311,7 @@ def main_text_and_data_upload(state, APP_TITLE):
         delimiter = st.selectbox("Determine the delimiter in your dataset", ["Excel File", "Comma (,)", "Semicolon (;)"])
         df, warnings = load_data(file_buffer, delimiter)
         st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("Or select sample file here:")
         state['sample_file'] = st.selectbox("Or select sample file here:", ["None", "Alzheimer", "Sample"])
 
         for warning in warnings:
@@ -354,7 +355,7 @@ def get_system_report():
     Returns the package versions
     """
     report = {}
-    report['omic_learn_version'] = "v1.1.0"
+    report['omic_learn_version'] = "v1.1.1"
     report['python_version'] = sys.version[:5]
     report['pandas_version'] = pd.__version__
     report['numpy_version'] = np.version.version
