@@ -66,9 +66,9 @@ def main_components():
             .download_link:hover {background: #f63366 !important; color: #FFF !important;}
             h1, h2, h3, h4, h5, h6, a, a:visited {color: #f84f57 !important}
             label, stText, p, .caption {color: #035672}
-            .css-17eq0hr {background: #035672 !important;}
+            .css-1d391kg {background: #035672 !important;}
             .streamlit-expanderHeader {font-size: 16px !important;}
-            .css-17eq0hr label, stText, .caption, .css-j075dz, .css-1t42vg8 {color: #FFF !important}
+            .css-17eq0hr label, stText, .caption, .css-j075dz, .css-1t42vg8, .css-1vgnld3, .css-6sz9vy {color: #FFF !important}
             .css-17eq0hr a {text-decoration:underline;}
             .tickBarMin, .tickBarMax {color: #f84f57 !important}
             .markdown-text-container p {color: #035672 !important}
@@ -296,7 +296,7 @@ def main_text_and_data_upload(state, APP_TITLE):
     While OmicLearn has the functionality to perform basic exploratory data analysis (EDA) such as PCA, it is not meant to substitute throughout data exploration but rather add a machine learning layer.
     """)
 
-    with st.beta_expander("Upload or select sample dataset (*Required)", expanded=True):
+    with st.expander("Upload or select sample dataset (*Required)", expanded=True):
         st.info("""
             - Upload your excel / csv file here. Maximum size is 200 Mb.
             - Each row corresponds to a sample, each column to a feature.
@@ -467,7 +467,7 @@ def generate_text(state, report):
 
     # Print the all text
     st.header("Summary")
-    with st.beta_expander("Summary text"):
+    with st.expander("Summary text"):
         st.info(text)
 
 # Generate footer
