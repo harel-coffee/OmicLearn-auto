@@ -54,7 +54,7 @@ def checkpoint_for_data_upload(state, record_widgets):
         state['not_proteins'] = [_ for _ in state.df.columns.to_list() if _[0] == '_']
 
         # Dataset -- Subset
-        with st.beta_expander("Create subset"):
+        with st.expander("Create subset"):
             st.markdown("""
                         This section allows you to specify a subset of data based on values within a comma.
                         Hence, you can exclude data that should not be used at all.""")
@@ -69,7 +69,7 @@ def checkpoint_for_data_upload(state, record_widgets):
                 state['subset_column'] = 'None'
 
         # Dataset -- Feature selections
-        with st.beta_expander("Classification target (*Required)"):
+        with st.expander("Classification target (*Required)"):
             st.markdown("""
                 Classification target refers to the column that contains the variables that are used two distinguish the two classes.
                 In the next section, the unique values of this column can be used to define the two classes.
@@ -85,7 +85,7 @@ def checkpoint_for_data_upload(state, record_widgets):
                 unique_elements_lst = unique_elements.index.tolist()
 
         # Dataset -- Class definitions
-        with st.beta_expander("Define classes (*Required)"):
+        with st.expander("Define classes (*Required)"):
             st.markdown(f"""
                 For a binary classification task, one needs to define two classes based on the
                 unique values in the `{state.target_column}` task column.
@@ -100,7 +100,7 @@ def checkpoint_for_data_upload(state, record_widgets):
         if state.class_0 and state.class_1:
 
             # EDA Part
-            with st.beta_expander("EDA — Exploratory data analysis (^Recommended)"):
+            with st.expander("EDA — Exploratory data analysis (^Recommended)"):
                 st.markdown("""
                     Use exploratory data anlysis on your dateset to identify potential correlations and biases.
                     For more information, please visit
@@ -124,12 +124,12 @@ def checkpoint_for_data_upload(state, record_widgets):
                         get_download_link(p, f"{state.eda_method}.pdf")
                         get_download_link(p, f"{state.eda_method}.svg")
 
-            with st.beta_expander("Additional features"):
+            with st.expander("Additional features"):
                 st.markdown("Select additional features. All non numerical values will be encoded (e.g. M/F -> 0,1)")
                 state['additional_features'] = multiselect("Select additional features for trainig:", state.remainder, default=None)
 
             # Exclude features
-            with st.beta_expander("Exclude features"):
+            with st.expander("Exclude features"):
                 state['exclude_features'] = []
                 st.markdown("Exclude some features from the model training by selecting or uploading a CSV file. "
                             "This can be useful when, e.g., re-running a model without a top feature and assessing the difference in classification accuracy.")
@@ -150,7 +150,7 @@ def checkpoint_for_data_upload(state, record_widgets):
                                                                 state.proteins, default=[])
 
             # Manual feature selection
-            with st.beta_expander("Manually select features"):
+            with st.expander("Manually select features"):
                 st.markdown("Manually select a subset of features. If only these features should be used, additionally set the "
                             "`Feature selection` method to `None`. Otherwise, feature selection will be applied, and only a subset of the manually selected features is used.")
                 manual_users_features = multiselect("Select your features manually:", state.proteins, default=None)
@@ -158,7 +158,7 @@ def checkpoint_for_data_upload(state, record_widgets):
                 state.proteins = manual_users_features
 
         # Dataset -- Cohort selections
-        with st.beta_expander("Cohort comparison"):
+        with st.expander("Cohort comparison"):
             st.markdown('Select cohort column to train on one and predict on another:')
             not_proteins_excluded_target_option = state.not_proteins
             if state.target_column != "":
@@ -188,7 +188,7 @@ def classify_and_plot(state):
 
     top_features = []
     # Feature importances from the classifier
-    with st.beta_expander("Feature importances from the classifier"):
+    with st.expander("Feature importances from the classifier"):
         st.subheader('Feature importances from the classifier')
         if state.cv_method == 'RepeatedStratifiedKFold':
             st.markdown(f'This is the average feature importance from all {state.cv_splits*state.cv_repeats} cross validation runs.')
@@ -219,7 +219,7 @@ def classify_and_plot(state):
             st.info('Feature importance attribute is not implemented for this classifier.')
     state['top_features'] = top_features
     # ROC-AUC
-    with st.beta_expander("Receiver operating characteristic Curve and Precision-Recall Curve"):
+    with st.expander("Receiver operating characteristic Curve and Precision-Recall Curve"):
         st.subheader('Receiver operating characteristic')
         p = plot_roc_curve_cv(cv_curves['roc_curves_'])
         st.plotly_chart(p, use_container_width=True)
@@ -237,7 +237,7 @@ def classify_and_plot(state):
             get_download_link(p, 'pr_curve.svg')
 
     # Confusion Matrix (CM)
-    with st.beta_expander("Confusion matrix"):
+    with st.expander("Confusion matrix"):
         names = ['CV_split {}'.format(_+1) for _ in range(len(cv_curves['y_hats_']))]
         names.insert(0, 'Sum of all splits')
         p = plot_confusion_matrices(state.class_0, state.class_1, cv_curves['y_hats_'], names)
@@ -259,7 +259,7 @@ def classify_and_plot(state):
         st.write(cm_results_)
 
     # Results table
-    with st.beta_expander("Table for run results"):
+    with st.expander("Table for run results"):
         st.subheader(f'Run results for `{state.classifier}`')
         state['summary'] = pd.DataFrame(pd.DataFrame(cv_results).describe())
         st.write(state.summary)
@@ -274,7 +274,7 @@ def classify_and_plot(state):
         st.header('Cohort comparison results')
         cohort_results, cohort_curves = perform_cross_validation(state, state.cohort_column)
 
-        with st.beta_expander("Receiver operating characteristic Curve and Precision-Recall Curve"):
+        with st.expander("Receiver operating characteristic Curve and Precision-Recall Curve"):
             # ROC-AUC for Cohorts
             st.subheader('Receiver operating characteristic')
             p = plot_roc_curve_cv(cohort_curves['roc_curves_'], cohort_curves['cohort_combos'])
@@ -293,7 +293,7 @@ def classify_and_plot(state):
                 get_download_link(p, 'pr_curve_cohort.svg')
 
         # Confusion Matrix (CM) for Cohorts
-        with st.beta_expander("Confusion matrix"):
+        with st.expander("Confusion matrix"):
             st.subheader('Confusion matrix')
             names = ['Train on {}, Test on {}'.format(_[0], _[1]) for _ in cohort_curves['cohort_combos']]
             names.insert(0, 'Sum of cohort comparisons')
@@ -304,7 +304,7 @@ def classify_and_plot(state):
                 get_download_link(p, 'cm_cohorts.pdf')
                 get_download_link(p, 'cm_cohorts.svg')
 
-        with st.beta_expander("Table for run results"):
+        with st.expander("Table for run results"):
             state['cohort_summary'] = pd.DataFrame(pd.DataFrame(cv_results).describe())
             st.write(state.cohort_summary)
             get_download_link(state.cohort_summary, "run_results_cohort.csv")
