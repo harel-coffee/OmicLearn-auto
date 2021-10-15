@@ -252,7 +252,7 @@ def save_sessions(widget_values, user_name):
     sessions_df = sessions_df.drop("user", axis=1)
 
     st.write("## Session History")
-    st.dataframe(sessions_df.T.style.set_precision(4)) # Display only 3 decimal points in UI side
+    st.dataframe(sessions_df.style.format(precision=3)) #  Display only 3 decimal points in UI side
     get_download_link(sessions_df, "session_history.csv")
 
 # Load data

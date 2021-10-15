@@ -5,7 +5,7 @@ import pandas as pd
 from PIL import Image
 import streamlit as st
 from datetime import datetime
-warnings.simplefilter("ignore", FutureWarning)
+warnings.simplefilter("ignore")
 
 # Session state
 import utils.session_states as session_states
