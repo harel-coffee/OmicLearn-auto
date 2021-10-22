@@ -66,9 +66,9 @@ def main_components():
             .download_link:hover {background: #f63366 !important; color: #FFF !important;}
             h1, h2, h3, h4, h5, h6, a, a:visited {color: #f84f57 !important}
             label, stText, p, .caption {color: #035672}
-            .css-17eq0hr {background: #035672 !important;}
+            .css-1d391kg {background: #035672 !important;}
             .streamlit-expanderHeader {font-size: 16px !important;}
-            .css-17eq0hr label, stText, .caption, .css-j075dz, .css-1t42vg8 {color: #FFF !important}
+            label, stText, .caption, .css-1vgnld3, .css-6sz9vy, .css-1b0udgb {color: #FFF !important}
             .css-17eq0hr a {text-decoration:underline;}
             .tickBarMin, .tickBarMax {color: #f84f57 !important}
             .markdown-text-container p {color: #035672 !important}
@@ -252,7 +252,7 @@ def save_sessions(widget_values, user_name):
     sessions_df = sessions_df.drop("user", axis=1)
 
     st.write("## Session History")
-    st.dataframe(sessions_df.T.style.set_precision(4)) # Display only 3 decimal points in UI side
+    st.dataframe(sessions_df.style.format(precision=3)) #  Display only 3 decimal points in UI side
     get_download_link(sessions_df, "session_history.csv")
 
 # Load data
@@ -296,7 +296,7 @@ def main_text_and_data_upload(state, APP_TITLE):
     While OmicLearn has the functionality to perform basic exploratory data analysis (EDA) such as PCA, it is not meant to substitute throughout data exploration but rather add a machine learning layer.
     """)
 
-    with st.beta_expander("Upload or select sample dataset (*Required)", expanded=True):
+    with st.expander("Upload or select sample dataset (*Required)", expanded=True):
         st.info("""
             - Upload your excel / csv file here. Maximum size is 200 Mb.
             - Each row corresponds to a sample, each column to a feature.
@@ -311,6 +311,7 @@ def main_text_and_data_upload(state, APP_TITLE):
         delimiter = st.selectbox("Determine the delimiter in your dataset", ["Excel File", "Comma (,)", "Semicolon (;)"])
         df, warnings = load_data(file_buffer, delimiter)
         st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("Or select sample file here:")
         state['sample_file'] = st.selectbox("Or select sample file here:", ["None", "Alzheimer", "Sample"])
 
         for warning in warnings:
@@ -354,7 +355,7 @@ def get_system_report():
     Returns the package versions
     """
     report = {}
-    report['omic_learn_version'] = "v1.1.0"
+    report['omic_learn_version'] = "v1.1.1"
     report['python_version'] = sys.version[:5]
     report['pandas_version'] = pd.__version__
     report['numpy_version'] = np.version.version
@@ -467,7 +468,7 @@ def generate_text(state, report):
 
     # Print the all text
     st.header("Summary")
-    with st.beta_expander("Summary text"):
+    with st.expander("Summary text"):
         st.info(text)
 
 # Generate footer
