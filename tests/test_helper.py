@@ -35,6 +35,11 @@ def test_load_data():
     csv_data, warnings = load_data('test_csv_sc.csv', 'Semicolon (;)')
     print(csv_data)
     pd.testing.assert_frame_equal(csv_data, df)
+    
+    # TSV
+    tsv_data, warnings = load_data('test_tsv.tsv', 'Tab (\\t) for TSV')
+    print(tsv_data)
+    pd.testing.assert_frame_equal(tsv_data, df)
 
 def test_transform_dataset():
     """
