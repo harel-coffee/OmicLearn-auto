@@ -19,7 +19,7 @@
 
 ## 1. Preprocessing
 
-A critical step in machine learning (ML) is data preprocessing. It is used to convert data that can have very different scales and exhibit outliers to be more uniform to be used with ML algorithms. Here, we can distinguish three separate aspects that are of particular interest when dealing with proteomics data:
+A critical step in machine learning (ML) is data preprocessing. It is used to convert data that can have very different data ranges and exhibit outliers to be more uniform to be used with ML algorithms. Here, we can distinguish three separate aspects that are of particular interest when dealing with proteomics data:
 
 * Standardization
 * Imputation of missing values

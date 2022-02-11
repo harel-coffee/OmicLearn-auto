@@ -13,11 +13,9 @@
 
 ---
 
-## Access to OmicLearn
+## Online Access to OmicLearn
 
-🟢 <a href="https://omiclearn.com/" target="_blank">OmicLearn.com</a>
-
-🟢 <a href="https://share.streamlit.io/omicera/omiclearn/omic_learn.py" target="_blank">Streamlit Share (collects usage statistics - XGBoost not installed)</a>
+🟢 <a href="https://share.streamlit.io/omicera/omiclearn/omic_learn.py" target="_blank">Streamlit Share</a>
 
 ## Using OmicLearn
 **OmicLearn** enables researchers and scientists to explore the latest algorithms in machine learning (ML) for their usage in proteomics/transcriptomics.
@@ -89,13 +87,13 @@ _**Figure 4:** OmicLearn sidebar options_
 
 ### Data Selection
 
-After uploading the data, the data will be displayed within the OmicLearn window and can be explored. The dropdown menu `Subset` allows you to specify a subset of data based on values within a comma. This way, you can exclude data that should not be used at all.
+After uploading the data, the data will be displayed within the OmicLearn window and can be explored. The dropdown menu `Subset` allows you to specify a subset of data based on values within a column. This way, you can exclude data that should not be used at all. An example use case could be that you collected data from different sites and want to exclude a site.
 
 ![Subset](https://user-images.githubusercontent.com/49681382/106892179-c0f4ea00-66fc-11eb-90bb-53595e8dc124.png)
 
 _**Figure 5:** Example usage for `Subset` section_
 
-Within `Features,` you should select the target column. This refers to the variable that the classifier should be able to distinguish. As we are performing a binary classification task, there are only two options for the outcome of the classifier. By assigning multiple values to a class, multiple combinations of classifications can be tested.
+Within `Features`, you should select the target column. This refers to the variable that the classifier should be able to distinguish. As we are performing a binary classification task, there are only two options for the outcome of the classifier. By assigning multiple values to a class, multiple combinations of classifications can be tested.
 
 ![Classification target](https://user-images.githubusercontent.com/49681382/106891533-dd445700-66fb-11eb-8c42-322bdcbea432.png)
 
@@ -107,7 +105,7 @@ Furthermore, `Additional Features` can be selected. This refers to columns that 
 
 _**Figure 7:** Sample case for `Additional Features` option_
 
-The section `Exclude identifiers` enables users to exclude the identifiers. Also, the file uploading menu allows avoiding to do this job manually.
+The section `Exclude identifiers` enables users to exclude selected features manually. This can be useful e.g., when wanting to asses performance without a top feature. There is also an option to upload a file with multiple features that should be excluded.
 
 > To utilize this option, you should upload a CSV (comma `,` separated) file where each row corresponds to a feature to be excluded. Also, the file should include a header (title row).
 
