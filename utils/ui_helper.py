@@ -310,7 +310,14 @@ def main_text_and_data_upload(state, APP_TITLE):
                     [Apache License](https://github.com/OmicEra/OmicLearn/blob/master/LICENSE).
                     Data that is uploaded via the file uploader will not be saved by us;
                     it is only stored temporarily in RAM to perform the calculations.""")
-        delimiter = st.selectbox("Determine the delimiter in your dataset", ["Excel File", "Comma (,)", "Semicolon (;)", "Tab (\\t) for TSV"])
+
+        if file_buffer.name.endswith('.xlsx') or file_buffer.name.endswith('.xls'):
+            delimiter = "Excel File"
+        elif file_buffer.name.endswith('.tsv'):
+            delimiter = "Tab (\\t) for TSV"
+        else:
+            delimiter = st.selectbox("Determine the delimiter in your dataset", ["Comma (,)", "Semicolon (;)"])
+            
         df, warnings = load_data(file_buffer, delimiter)
         st.markdown("<hr>", unsafe_allow_html=True)
         st.markdown("Or select sample file here:")
