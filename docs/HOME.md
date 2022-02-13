@@ -15,11 +15,9 @@
 > Furkan M Torun, Sebastian Virreira Winter, Sophia Doll, Felix M Riese, Artem Vorobyev, Johannes B Müller-Reif, Philipp E Geyer, Maximilian T Strauss <br>
 > bioRxiv 2021.03.05.434053; doi: https://doi.org/10.1101/2021.03.05.434053
 
-## Access
+## Online Access
 
-🟢 <a href="https://omiclearn.com/" target="_blank">OmicLearn.com</a>
-
-🟢 <a href="https://share.streamlit.io/omicera/omiclearn/omic_learn.py" target="_blank">Streamlit Share (collects usage statistics - XGBoost not installed)</a>
+🟢 <a href="https://omiclearn.com" target="_blank">OmicLearn.com </a>
 
 ---
 

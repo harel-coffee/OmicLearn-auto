@@ -285,6 +285,8 @@ def load_data(file_buffer, delimiter):
             df = pd.read_csv(file_buffer, sep=',')
         elif delimiter == "Semicolon (;)":
             df = pd.read_csv(file_buffer, sep=';')
+        elif delimiter == "Tab (\\t) for TSV":
+            df = pd.read_csv(file_buffer, sep='\t')
     return df, warnings
 
 # Show main text and data upload section
@@ -298,17 +300,24 @@ def main_text_and_data_upload(state, APP_TITLE):
 
     with st.expander("Upload or select sample dataset (*Required)", expanded=True):
         st.info("""
-            - Upload your excel / csv file here. Maximum size is 200 Mb.
+            - Upload your excel / csv / tsv file here. Maximum size is 200 Mb.
             - Each row corresponds to a sample, each column to a feature.
             - 'Features' such as protein IDs, gene names, lipids or miRNA IDs should be uppercase.
             - Additional features should be marked with a leading '_'.
         """)
-        file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls"])
+        file_buffer = st.file_uploader("Upload your dataset below", type=["csv", "xlsx", "xls", "tsv"])
         st.markdown("""**Note:** By uploading a file, you agree to our
                     [Apache License](https://github.com/OmicEra/OmicLearn/blob/master/LICENSE).
                     Data that is uploaded via the file uploader will not be saved by us;
                     it is only stored temporarily in RAM to perform the calculations.""")
-        delimiter = st.selectbox("Determine the delimiter in your dataset", ["Excel File", "Comma (,)", "Semicolon (;)"])
+
+        if file_buffer.name.endswith('.xlsx') or file_buffer.name.endswith('.xls'):
+            delimiter = "Excel File"
+        elif file_buffer.name.endswith('.tsv'):
+            delimiter = "Tab (\\t) for TSV"
+        else:
+            delimiter = st.selectbox("Determine the delimiter in your dataset", ["Comma (,)", "Semicolon (;)"])
+            
         df, warnings = load_data(file_buffer, delimiter)
         st.markdown("<hr>", unsafe_allow_html=True)
         st.markdown("Or select sample file here:")
@@ -355,7 +364,7 @@ def get_system_report():
     Returns the package versions
     """
     report = {}
-    report['omic_learn_version'] = "v1.1.1"
+    report['omic_learn_version'] = "v1.1.2"
     report['python_version'] = sys.version[:5]
     report['pandas_version'] = pd.__version__
     report['numpy_version'] = np.version.version
