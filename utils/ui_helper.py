@@ -311,21 +311,23 @@ def main_text_and_data_upload(state, APP_TITLE):
                     Data that is uploaded via the file uploader will not be saved by us;
                     it is only stored temporarily in RAM to perform the calculations.""")
 
-        if file_buffer.name.endswith('.xlsx') or file_buffer.name.endswith('.xls'):
-            delimiter = "Excel File"
-        elif file_buffer.name.endswith('.tsv'):
-            delimiter = "Tab (\\t) for TSV"
-        else:
-            delimiter = st.selectbox("Determine the delimiter in your dataset", ["Comma (,)", "Semicolon (;)"])
-            
-        df, warnings = load_data(file_buffer, delimiter)
+        if file_buffer is not None:
+            if file_buffer.name.endswith('.xlsx') or file_buffer.name.endswith('.xls'):
+                delimiter = "Excel File"
+            elif file_buffer.name.endswith('.tsv'):
+                delimiter = "Tab (\\t) for TSV"
+            else:
+                delimiter = st.selectbox("Determine the delimiter in your dataset", ["Comma (,)", "Semicolon (;)"])
+
+            df, warnings = load_data(file_buffer, delimiter)
+
+            for warning in warnings:
+                st.warning(warning)
+            state['df'] = df
+
         st.markdown("<hr>", unsafe_allow_html=True)
         st.markdown("Or select sample file here:")
         state['sample_file'] = st.selectbox("Or select sample file here:", ["None", "Alzheimer", "Sample"])
-
-        for warning in warnings:
-            st.warning(warning)
-        state['df'] = df
 
         # Sample dataset / uploaded file selection
         dataframe_length = len(state.df)
