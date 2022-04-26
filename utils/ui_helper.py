@@ -66,14 +66,11 @@ def main_components():
             .download_link:hover {background: #f63366 !important; color: #FFF !important;}
             h1, h2, h3, h4, h5, h6, a, a:visited {color: #f84f57 !important}
             label, stText, p, .caption {color: #035672}
-            .css-1d391kg {background: #035672 !important;}
+            .css-1adrfps {background: #035672 !important;}
             .streamlit-expanderHeader {font-size: 16px !important;}
-            label, stText, .caption, .css-1vgnld3, .css-6sz9vy, .css-1b0udgb {color: #FFF !important}
-            .css-17eq0hr a {text-decoration:underline;}
+            label, stText, .caption, .css-1b0udgb, .css-1inwz65 {color: #FFF !important}
             .tickBarMin, .tickBarMax {color: #f84f57 !important}
             .markdown-text-container p {color: #035672 !important}
-            .css-xq1lnh-EmotionIconBase {fill: #ff3a50 !important}
-            .css-hi6a2p {max-width: 800px !important}
 
             /* Tabs */
             .tabs { position: relative; min-height: 200px; clear: both; margin: 40px auto 0px auto; background: #efefef; box-shadow: 0 48px 80px -32px rgba(0,0,0,0.3); }
