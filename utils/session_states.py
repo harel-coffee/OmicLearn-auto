@@ -1,15 +1,15 @@
 from streamlit.server.server import Server
+
 try:
-    from streamlit.scriptrunner import get_script_run_ctx
+    from streamlit.scriptrunner import get_script_run_ctx as get_report_ctx
 except ModuleNotFoundError:
     # streamlit < 1.8
     try:
-        from streamlit.script_run_context import get_script_run_ctx  # type: ignore
+        from streamlit.script_run_context import \
+            get_script_run_ctx as get_report_ctx
     except ModuleNotFoundError:
         # streamlit < 1.4
-        from streamlit.report_thread import (  # type: ignore
-            get_report_ctx as get_script_run_ctx,
-        )
+        from streamlit.report_thread import get_report_ctx
 
 class SessionState(object):
     def __init__(self, **kwargs):
@@ -42,17 +42,7 @@ def get(**kwargs):
 
     for session_info in session_infos:
         s = session_info.session
-        if (
-            # Streamlit < 0.54.0
-            (hasattr(s, '_main_dg') and s._main_dg == ctx.main_dg)
-            or
-            # Streamlit >= 0.54.0
-            (not hasattr(s, '_main_dg') and s.enqueue == ctx.enqueue)
-            or
-            # Streamlit >= 0.65.2
-            (not hasattr(s, '_main_dg') and s._uploaded_file_mgr == ctx.uploaded_file_mgr)
-        ):
-            this_session = s
+        this_session = s
 
     if this_session is None:
         raise RuntimeError(
