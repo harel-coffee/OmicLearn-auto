@@ -64,7 +64,7 @@ def main_components():
                             cursor:pointer !important; margin: 15px 0px; border: 1px solid #f63366;
                             text-align:center; padding: 8px !important; width: 200px;}
             .download_link:hover {background: #f63366 !important; color: #FFF !important;}
-            h1, h2, h3, h4, h5, h6, a, a:visited {color: #f84f57 !important}
+            h1, h2, h3, h4, h5, h6, a, a:visited, .css-9s5bis {color: #f84f57 !important}
             label, stText, p, .caption {color: #035672}
             .css-1adrfps {background: #035672 !important;}
             .streamlit-expanderHeader {font-size: 16px !important;}
