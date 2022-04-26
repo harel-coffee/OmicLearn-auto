@@ -12,7 +12,7 @@ assignees: ''
 **Describe your setup:**
  - OS (Operating system) with version: `[e.g. Ubuntu 18.04 LTS]`
  - Browser: `[e.g. Chrome, Safari]`
- - Python Verson: `[e.g. 3.7]`
+ - Python Verson: `[e.g. 3.8]`
  - List the versions of packages if you installed different versions specified in [requirements.txt](https://github.com/OmicEra/OmicLearn/blob/master/requirements.txt):
    ```
    pandas==0.0.0.0

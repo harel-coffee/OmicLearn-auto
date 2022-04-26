@@ -69,6 +69,6 @@ Before you submit a pull request, check that it meets these guidelines:
 
 1.  You need to open a issue on Github issues page for discussing your changes.
 2.  If the pull request adds functionality, the Wiki page should be updated.
-3.  The pull request should work for Python 3.7.
+3.  The pull request should work for Python 3.8.
 4.  The functionality of project should be tested from the browser.
 
