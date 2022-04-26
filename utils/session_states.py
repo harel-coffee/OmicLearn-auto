@@ -1,11 +1,15 @@
+from streamlit.server.server import Server
 try:
-    import streamlit.ReportThread as ReportThread
-    from streamlit.server.Server import Server
-except:
-    # Streamlit >= 0.65.0    
-    import streamlit.report_thread as ReportThread
-    from streamlit.server.server import Server
-
+    from streamlit.scriptrunner import get_script_run_ctx
+except ModuleNotFoundError:
+    # streamlit < 1.8
+    try:
+        from streamlit.script_run_context import get_script_run_ctx  # type: ignore
+    except ModuleNotFoundError:
+        # streamlit < 1.4
+        from streamlit.report_thread import (  # type: ignore
+            get_report_ctx as get_script_run_ctx,
+        )
 
 class SessionState(object):
     def __init__(self, **kwargs):
@@ -25,7 +29,7 @@ def get(**kwargs):
     """
     # Hack to get the session object from Streamlit.
 
-    ctx = ReportThread.get_report_ctx()
+    ctx = get_report_ctx()
 
     this_session = None
     
