@@ -27,7 +27,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest XlsxWriter
         if [ -f requirements_pip.txt ]; then pip install -r requirements_pip.txt; fi
-    - name: Run tests
-      run: |
-        cd tests/
-        pytest test_helper.py
+    # - name: Run tests
+    #  run: |
+    #    cd tests/
+    #    pytest test_helper.py
